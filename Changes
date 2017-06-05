@@ -1,0 +1,19 @@
+Revision history for WHATWG::URL
+
+0.1.0             Not Released
+
+    [ WHATWG::URL ]
+
+    * Created an implementation of the majority of the WHATWG URL standard.
+
+    [ WHATWG::URL::URL ]
+
+    * Created a skeleton module for the URL class.
+
+    [ WHATWG::URL::URLSearchParams ]
+
+    * Created a skeleton module for the URLSearchParams class.
+
+    [ WHATWG::URL::Util::Pointer ]
+
+    * Created an implementation of the string pointer concept.

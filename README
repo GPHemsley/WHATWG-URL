@@ -1,0 +1,35 @@
+WHATWG::URL
+
+
+REQUIREMENTS
+
+* Perl v5.22.x or higher
+
+INSTALLATION
+
+To install this module, run the following commands:
+
+	perl Makefile.PL
+	make
+	make test
+	make install
+
+SUPPORT AND DOCUMENTATION
+
+After installing, you can find documentation for this module with the
+perldoc command.
+
+    perldoc WHATWG::URL
+
+You can also look for information at:
+
+    Search CPAN
+        http://search.cpan.org/dist/WHATWG-URL/
+
+
+LICENSE
+
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at L<http://mozilla.org/MPL/2.0/>.
+

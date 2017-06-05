@@ -1,0 +1,31 @@
+use v5.22;
+use strict;
+use warnings;
+use ExtUtils::MakeMaker;
+
+WriteMakefile(
+    NAME             => 'WHATWG::URL',
+    AUTHOR           => q{Gordon P. Hemsley <me@gphemsley.org>},
+    VERSION_FROM     => 'lib/WHATWG/URL.pm',
+    ABSTRACT_FROM    => 'lib/WHATWG/URL.pm',
+    LICENSE          => 'open_source',  # 'mozilla_2_0',
+    PL_FILES         => {},
+    MIN_PERL_VERSION => 'v5.22',
+    CONFIGURE_REQUIRES => {
+        'ExtUtils::MakeMaker' => '0',
+    },
+    BUILD_REQUIRES => {
+        'Test::More' => '0',
+        'Devel::Cover' => '0',
+        'LWP::Simple' => '0',
+        'Encode' => '0',
+        'JSON' => '0',
+    },
+    PREREQ_PM => {
+        'POSIX' => '0',
+        'Net::IDN::UTS46' => '2.500_20170604',
+        'WHATWG::Infra' => '0',
+    },
+    dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
+    clean => { FILES => 'WHATWG-URL-*' },
+);
