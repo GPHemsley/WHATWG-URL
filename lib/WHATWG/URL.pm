@@ -10,7 +10,7 @@ WHATWG::URL - Primary functionality from the WHATWG URL standard
 
 =cut
 
-our $VERSION = '0.1.0-20170611';
+our $VERSION = '0.1.0-20170611.1';
 
 use List::Util ();
 use Encode ();
@@ -237,7 +237,12 @@ sub ipv4_parse {
 
 	my $validation_error_flag = 0;
 
+	# XXX: This behavior isn't well-defined in the spec.
 	my @parts = split(/\N{U+002E}/, $input, -1);
+	# NOTE: This is required because Perl discards failed matches.
+	unless (@parts) {
+		@parts = ( $input );
+	}
 
 	if ($parts[-1] eq '') {
 		$validation_error_flag = 1;
