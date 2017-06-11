@@ -22,11 +22,13 @@ WriteMakefile(
         'JSON' => '0',
     },
     PREREQ_PM => {
+        'List::Util' => '1.33',
+        'Encode' => '2.21',
         'POSIX' => '0',
         'Net::IDN::UTS46' => '2.500_20170604',
         'WHATWG::Infra' => '0',
     },
-    test => { TESTS => 't/000-*.t t/001-*.t' },
+    test => { TESTS => 't/000-*.t t/001-*.t t/002-*.t' },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES => 'WHATWG-URL-*' },
 );

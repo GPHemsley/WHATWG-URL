@@ -10,8 +10,10 @@ WHATWG::URL - Primary functionality from the WHATWG URL standard
 
 =cut
 
-our $VERSION = '0.1.0-20170604';
+our $VERSION = '0.1.0-20170611';
 
+use List::Util ();
+use Encode ();
 use POSIX;
 use Net::IDN::UTS46;
 use WHATWG::Infra;
@@ -57,19 +59,19 @@ sub percent_decode {
 
 	my $output = '';
 
-	for (my $i = 0; $i < length($input); $i++) {
-		my $byte = substr($input, $i, 1);
+	for (my $i = 0, my $j = 0; $i < length($input); $i++, $j++) {
+		my $byte = vec($input, $i, 8);
 
-		if ($byte ne chr(0x25)) {
-			$output .= $byte;
+		if ($byte ne 0x25) {
+			vec($output, $j, 8) .= $byte;
 		}
-		elsif ($byte eq chr(0x25) && substr($input, $i + 1, 2) !~ m/^[\x30-\x39\x41-\x46\x61-\x66]{2}$/) {
-			$output .= $byte;
+		elsif ($byte eq 0x25 && List::Util::none { $_ ~~ [ 0x30..0x39, 0x41..0x46, 0x61..0x66 ] } ( vec($input, $i + 1, 8), vec($input, $i + 2, 8) )) {
+			vec($output, $j, 8) .= $byte;
 		}
 		else {
-			my $byte_point = hex(substr($input, $i + 1, 2));  # TODO: decoded
+			my $byte_point = hex(join('', map { Encode::decode('UTF-8', pack('C*', $_)) } ( vec($input, $i + 1, 8), vec($input, $i + 2, 8) )));  # TODO: decoded
 
-			$output .= chr($byte_point);
+			vec($output, $j, 8) .= $byte_point;
 
 			$i += 2;
 		}
@@ -91,11 +93,13 @@ sub utf8_percent_encode {
 		return $code_point;
 	}
 
-	my $bytes = $code_point;  # TODO: UTF-8 encode
+	my $bytes = Encode::encode('UTF-8', $code_point);  # TODO: UTF-8 encode
 
 	my $results = '';
-	foreach my $byte (split //, $bytes) {
-		$results .= percent_encode(ord($byte));  # TODO
+	for (my $i = 0, my $j = 0; $i < length($bytes); $i++, $j++) {
+		my $byte = vec($bytes, $i, 8);
+
+		$results .= percent_encode($byte);
 	}
 
 	return $results;
