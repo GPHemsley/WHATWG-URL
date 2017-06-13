@@ -10,7 +10,7 @@ WHATWG::URL - Primary functionality from the WHATWG URL standard
 
 =cut
 
-our $VERSION = '0.1.0-20170611.1';
+our $VERSION = '0.1.0-20170612';
 
 use List::Util ();
 use Encode ();
@@ -317,7 +317,7 @@ sub ipv6_parse {
 
 	if ($pointer->c eq "\N{U+003A}")
 	{
-		if ($pointer->remaining ~~ m/^\N{U+003A}/) {
+		if ($pointer->remaining !~ m/^\N{U+003A}/) {
 			warn 'validation error';
 			return undef;
 		}
@@ -505,9 +505,6 @@ sub host_serialize {
 
 sub ipv4_serialize {
 	my ($address) = @_;
-
-	# XXX
-	print Dumper($address);
 
 	my $output = '';
 

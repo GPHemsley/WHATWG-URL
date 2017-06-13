@@ -270,15 +270,15 @@ subtest 'domain_to_ascii' => sub {
 	plan skip_all => 'TODO';
 };
 
-
 #
 # 3.5. Host parsing
 #
 
 subtest 'host_parse' => sub {
 	plan skip_all => 'TODO';
+	# is_deeply(WHATWG::URL::host_parse('', 0), '');
+	# is_deeply(WHATWG::URL::host_parse('', 1), '');
 };
-
 
 subtest 'ipv4_number_parse' => sub {
 	my $r10;
@@ -382,9 +382,43 @@ subtest 'ipv4_parse' => sub {
 };
 
 subtest 'ipv6_parse' => sub {
-	plan skip_all => 'TODO';
-};
+	is_deeply(WHATWG::URL::ipv6_parse(''), undef);
+	is_deeply(WHATWG::URL::ipv6_parse(':'), undef);
+	is_deeply(WHATWG::URL::ipv6_parse('0:0:0:0:0:0:0:0:0'), undef);
+	is_deeply(WHATWG::URL::ipv6_parse('0000:0000:0000:0000:0000:0000:0000:0000:0000'), undef);
+	is_deeply(WHATWG::URL::ipv6_parse('::1:1:1:1:1:1:1:1'), undef);
+	is_deeply(WHATWG::URL::ipv6_parse('1:1:1:1::1:1:1:1'), undef);
+	is_deeply(WHATWG::URL::ipv6_parse('1:1:1:1:1:1:1:1::'), undef);
+	is_deeply(WHATWG::URL::ipv6_parse(':::'), undef);
+	is_deeply(WHATWG::URL::ipv6_parse('.'), undef);
+	is_deeply(WHATWG::URL::ipv6_parse('0001:0001:0001:0001:0001:0001:0001:127.0.0.1'), undef);
+	is_deeply(WHATWG::URL::ipv6_parse('::127.0.0.0.1'), undef);
+	is_deeply(WHATWG::URL::ipv6_parse('::127.0:0:0:1'), undef);
+	is_deeply(WHATWG::URL::ipv6_parse('::127.0.f.1'), undef);
+	is_deeply(WHATWG::URL::ipv6_parse('::127.0.0.01'), undef);
+	is_deeply(WHATWG::URL::ipv6_parse('::127.0.0.256'), undef);
+	is_deeply(WHATWG::URL::ipv6_parse('::256.0.0.1'), undef);
+	is_deeply(WHATWG::URL::ipv6_parse('::0.1'), undef);
+	is_deeply(WHATWG::URL::ipv6_parse('0:0:0:0:0:0:0:0:'), undef);
+	is_deeply(WHATWG::URL::ipv6_parse('0000:0000:0000:0000:0000:0000:0000:0000:'), undef);
+	is_deeply(WHATWG::URL::ipv6_parse('0:0:0:0:0:0:0:0x'), undef);
+	is_deeply(WHATWG::URL::ipv6_parse('0000:0000:0000:0000:0000:0000:0000:0000x'), undef);
+	is_deeply(WHATWG::URL::ipv6_parse('::FFFFFF'), undef);
+	is_deeply(WHATWG::URL::ipv6_parse('FFFFFF::1'), undef);
+	is_deeply(WHATWG::URL::ipv6_parse('127.0.0.1'), undef);
 
+	is_deeply(WHATWG::URL::ipv6_parse('0:0:0:0:0:0:0:0'), [ 0, 0, 0, 0, 0, 0, 0, 0 ]);
+	is_deeply(WHATWG::URL::ipv6_parse('0000:0000:0000:0000:0000:0000:0000:0000'), [ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 ]);
+	is_deeply(WHATWG::URL::ipv6_parse('1:1:1:1:1:1:1:1'), [ 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 ]);
+	is_deeply(WHATWG::URL::ipv6_parse('0001:0001:0001:0001:0001:0001:0001:0001'), [ 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001 ]);
+	is_deeply(WHATWG::URL::ipv6_parse('f:f:f:f:f:f:f:f'), [ 0xF, 0xF, 0xF, 0xF, 0xF, 0xF, 0xF, 0xF ]);
+	is_deeply(WHATWG::URL::ipv6_parse('FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF'), [ 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF ]);
+	is_deeply(WHATWG::URL::ipv6_parse('::'), [ 0, 0, 0, 0, 0, 0, 0, 0 ]);
+	is_deeply(WHATWG::URL::ipv6_parse('::0'), [ 0, 0, 0, 0, 0, 0, 0, 0 ]);
+	is_deeply(WHATWG::URL::ipv6_parse('0::0'), [ 0, 0, 0, 0, 0, 0, 0, 0 ]);
+	is_deeply(WHATWG::URL::ipv6_parse('::127.0.0.1'), [ 0, 0, 0, 0, 0, 0, 0x7F00, 0x0001 ]);
+	is_deeply(WHATWG::URL::ipv6_parse('0001:0001:0001:0001:0001:0001:127.0.0.1'), [ 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x7F00, 0x0001 ]);
+};
 
 subtest 'opaque_host_parse' => sub {
 	is(WHATWG::URL::opaque_host_parse(''), '');
@@ -417,7 +451,6 @@ subtest 'host_serialize' => sub {
 	plan skip_all => 'TODO';
 };
 
-
 subtest 'ipv4_serialize' => sub {
 	my @i = ( 0x00, 0x01, 0x0F, 0x7F, 0xFF );
 	foreach my $w (@i) {
@@ -439,6 +472,17 @@ subtest 'ipv4_serialize' => sub {
 	foreach my $v (@i) {
 		is(WHATWG::URL::ipv4_serialize($v << 32), '0.0.0.0');
 	}
+};
+
+subtest 'ipv6_serialize' => sub {
+	is(WHATWG::URL::ipv6_serialize([ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 ]), '::');
+	is(WHATWG::URL::ipv6_serialize([ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0001 ]), '::1');
+	is(WHATWG::URL::ipv6_serialize([ 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001 ]), '1:1:1:1:1:1:1:1');
+	is(WHATWG::URL::ipv6_serialize([ 0x0000, 0x0001, 0x0000, 0x0001, 0x0000, 0x0001, 0x0000, 0x0001 ]), '0:1:0:1:0:1:0:1');
+	is(WHATWG::URL::ipv6_serialize([ 0x0001, 0x0000, 0x0001, 0x0000, 0x0001, 0x0000, 0x0001, 0x0000 ]), '1:0:1:0:1:0:1:0');
+	is(WHATWG::URL::ipv6_serialize([ 0x0001, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0001 ]), '1::1');
+	is(WHATWG::URL::ipv6_serialize([ 0xF, 0xF, 0xF, 0xF, 0xF, 0xF, 0xF, 0xF ]), 'f:f:f:f:f:f:f:f');
+	is(WHATWG::URL::ipv6_serialize([ 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF ]), 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff');
 };
 
 ###
