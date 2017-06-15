@@ -12,6 +12,9 @@ use JSON;
 # XXX
 use Data::Dumper;
 
+use feature 'postderef';
+use experimental 'postderef';
+
 use_ok('WHATWG::URL');
 use_ok('WHATWG::URL::URL');
 use_ok('WHATWG::URL::URLSearchParams');
