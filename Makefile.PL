@@ -28,8 +28,7 @@ WriteMakefile(
         'Net::IDN::UTS46' => '2.500_20170604',
         'WHATWG::Infra' => '0',
     },
-    test => { TESTS => 't/000-*.t t/001-*.t t/002-*.t' },
-    # test => { TESTS => 't/004-*.t' },
+    test => { TESTS => 't/000-*.t t/001-*.t t/002-*.t t/004-*.t' },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES => 'WHATWG-URL-*' },
 );

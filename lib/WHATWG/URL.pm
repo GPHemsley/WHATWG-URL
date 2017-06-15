@@ -10,7 +10,7 @@ WHATWG::URL - Primary functionality from the WHATWG URL standard
 
 =cut
 
-our $VERSION = '0.1.0-20170612';
+our $VERSION = '0.1.0-20170615';
 
 use List::Util ();
 use Encode ();
@@ -65,7 +65,7 @@ sub percent_decode {
 		if ($byte ne 0x25) {
 			vec($output, $j, 8) .= $byte;
 		}
-		elsif ($byte eq 0x25 && List::Util::none { $_ ~~ [ 0x30..0x39, 0x41..0x46, 0x61..0x66 ] } ( vec($input, $i + 1, 8), vec($input, $i + 2, 8) )) {
+		elsif ($byte eq 0x25 && List::Util::notall { $_ ~~ [ 0x30..0x39, 0x41..0x46, 0x61..0x66 ] } ( vec($input, $i + 1, 8), vec($input, $i + 2, 8) )) {
 			vec($output, $j, 8) .= $byte;
 		}
 		else {
@@ -131,7 +131,10 @@ sub domain_to_ascii {
 		# }
 	}
 
-	print Dumper($domain, $result);  # XXX
+	# XXX
+	if (!defined $result || $domain ne $result) {
+		print Dumper($domain, $result);
+	}
 
 	unless (defined $result) {
 		warn 'validation error';
@@ -161,7 +164,7 @@ sub host_parse {
 		return opaque_host_parse($input);
 	}
 
-	my $domain = percent_decode($input);  # TODO: UTF-8 decode without BOM; UTF-8 encode
+	my $domain = Encode::decode('UTF-8', percent_decode(Encode::encode('UTF-8', $input)));  # TODO: UTF-8 decode without BOM; UTF-8 encode
 
 	my $ascii_domain = domain_to_ascii($domain);
 
@@ -284,7 +287,7 @@ sub ipv4_parse {
 		return undef;
 	}
 
-	if ($numbers[-1] > 256**(5 - scalar(@numbers))) {
+	if ($numbers[-1] >= 256**(5 - scalar(@numbers))) {
 		warn 'validation error';
 		return undef;
 	}
@@ -1269,10 +1272,10 @@ sub basic_url_parse {
 						$encoding = 'UTF-8';
 					}
 
-					$buffer = $buffer;  # TODO: encode
+					$buffer = Encode::encode($encoding, $buffer);  # TODO: encode
 
-					foreach my $byte (split //, $buffer) {
-						$byte = ord($byte);
+					for (my $i = 0, my $j = 0; $i < length($buffer); $i++, $j++) {
+						my $byte = vec($buffer, $i, 8);
 
 						if ($byte < 0x21 || $byte > 0x7E || $byte ~~ [ 0x22, 0x23, 0x3C, 0x3E ]) {
 							$url->{'query'} .= percent_encode($byte);

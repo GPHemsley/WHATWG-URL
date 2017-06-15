@@ -16,6 +16,9 @@ use_ok('WHATWG::URL');
 
 ###
 
+# Ignore validation errors.
+$SIG{'__WARN__'} = sub { warn $_[0] unless $_[0] =~ m/^validation error/ };
+
 #
 # 1. Infrastructure
 #
@@ -60,6 +63,7 @@ subtest 'percent_decode' => sub {
 	is(WHATWG::URL::percent_decode('abc%C2%A2def'), "abc\xC2\xA2def");
 	is(WHATWG::URL::percent_decode('sm%C3%B6rg%C3%A5sbord'), "sm\xC3\xB6rg\xC3\xA5sbord");
 	is(WHATWG::URL::percent_decode('abc%ffdef'), "abc\xffdef");
+	is(WHATWG::URL::percent_decode('abc%3gdef'), "abc%3gdef");
 };
 
 subtest 'utf8_percent_encode' => sub {
@@ -377,7 +381,7 @@ subtest 'ipv4_parse' => sub {
 	is(WHATWG::URL::ipv4_parse('256.256.256.256'), undef);
 	is(WHATWG::URL::ipv4_parse('4294967295'), 4294967295);
 	is(WHATWG::URL::ipv4_parse('0.4294967295'), undef);
-	is(WHATWG::URL::ipv4_parse('4294967296'), '4294967296');
+	is(WHATWG::URL::ipv4_parse('4294967296'), undef);
 	is(WHATWG::URL::ipv4_parse('0.4294967296'), undef);
 };
 
