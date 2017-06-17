@@ -3,12 +3,16 @@
 use v5.22;
 use strict;
 use warnings;
+use utf8;
 
 use Test::More;
 use Encode ();
 
 # XXX
 use Data::Dumper;
+
+use feature 'postderef';
+use experimental 'postderef';
 
 ###
 
@@ -24,6 +28,8 @@ $SIG{'__WARN__'} = sub { warn $_[0] unless $_[0] =~ m/^validation error/ };
 #
 
 subtest 'integer_serialize' => sub {
+	can_ok('WHATWG::URL', 'integer_serialize');
+
 	is(WHATWG::URL::integer_serialize('0'), 0);
 	is(WHATWG::URL::integer_serialize('000'), 0);
 	is(WHATWG::URL::integer_serialize('1'), 1);
@@ -40,6 +46,8 @@ subtest 'integer_serialize' => sub {
 #
 
 subtest 'percent_encode' => sub {
+	can_ok('WHATWG::URL', 'percent_encode');
+
 	is(WHATWG::URL::percent_encode(0), '%00');
 	is(WHATWG::URL::percent_encode(1), '%01');
 	is(WHATWG::URL::percent_encode(10), '%0A');
@@ -48,6 +56,8 @@ subtest 'percent_encode' => sub {
 };
 
 subtest 'percent_decode' => sub {
+	can_ok('WHATWG::URL', 'percent_decode');
+
 	is(WHATWG::URL::percent_decode(''), '');
 	is(WHATWG::URL::percent_decode('a'), 'a');
 	is(WHATWG::URL::percent_decode('%'), '%');
@@ -67,6 +77,8 @@ subtest 'percent_decode' => sub {
 };
 
 subtest 'utf8_percent_encode' => sub {
+	can_ok('WHATWG::URL', 'utf8_percent_encode');
+
 	subtest 'c0_control_percent_encode_set' => sub {
 		is(WHATWG::URL::utf8_percent_encode("\N{U+0000}", $WHATWG::URL::c0_control_percent_encode_set), '%00');
 		is(WHATWG::URL::utf8_percent_encode("\N{U+0001}", $WHATWG::URL::c0_control_percent_encode_set), '%01');
@@ -271,7 +283,22 @@ subtest 'utf8_percent_encode' => sub {
 #
 
 subtest 'domain_to_ascii' => sub {
-	plan skip_all => 'TODO';
+	can_ok('WHATWG::URL', 'domain_to_ascii');
+
+	is(WHATWG::URL::domain_to_ascii(''), '');
+	is(WHATWG::URL::domain_to_ascii('example.org'), 'example.org');
+	is(WHATWG::URL::domain_to_ascii('Bücher.de'), 'xn--bcher-kva.de');
+	is(WHATWG::URL::domain_to_ascii('xn--fu-hia.de'), 'xn--fu-hia.de');
+	is(WHATWG::URL::domain_to_ascii('faß.ExAmPlE'), 'xn--fa-hia.example');
+	is(WHATWG::URL::domain_to_ascii('點看.test'), 'xn--c1yn36f.test');
+	is(WHATWG::URL::domain_to_ascii("\N{U+038B}.test"), undef);
+
+	TODO: {
+		local $TODO = 'known issue with Net::IDN::UTS46';
+
+		is(WHATWG::URL::domain_to_ascii('.'), '.');
+		is(WHATWG::URL::domain_to_ascii('..'), '..');
+	}
 };
 
 #
@@ -279,12 +306,31 @@ subtest 'domain_to_ascii' => sub {
 #
 
 subtest 'host_parse' => sub {
-	plan skip_all => 'TODO';
-	# is_deeply(WHATWG::URL::host_parse('', 0), '');
-	# is_deeply(WHATWG::URL::host_parse('', 1), '');
+	can_ok('WHATWG::URL', 'host_parse');
+
+	is_deeply(WHATWG::URL::host_parse('', 0), '');
+	is_deeply(WHATWG::URL::host_parse('', 1), '');
+	is_deeply(WHATWG::URL::host_parse('[', 0), undef);
+	is_deeply(WHATWG::URL::host_parse('[', 1), undef);
+	is_deeply(WHATWG::URL::host_parse('[]', 0), undef);
+	is_deeply(WHATWG::URL::host_parse('[]', 1), undef);
+	is_deeply(WHATWG::URL::host_parse('[::0]', 0), [ 0, 0, 0, 0, 0, 0, 0, 0 ]);
+	is_deeply(WHATWG::URL::host_parse('[::0]', 1), [ 0, 0, 0, 0, 0, 0, 0, 0 ]);
+	is_deeply(WHATWG::URL::host_parse("\N{U+038B}.test", 0), '%CE%8B.test');
+	is_deeply(WHATWG::URL::host_parse("\N{U+038B}.test", 1), undef);
+
+	foreach my $forbidden ("\N{U+0000}", "\N{U+0009}", "\N{U+000A}", "\N{U+000D}", "\N{U+0020}", "\N{U+0023}", "\N{U+0025}", "\N{U+002F}", "\N{U+003A}", "\N{U+003F}", "\N{U+0040}", "\N{U+005B}", "\N{U+005C}", "\N{U+005D}") {
+		is_deeply(WHATWG::URL::host_parse("$forbidden.test", 1), undef);
+	}
+
+	is_deeply(WHATWG::URL::host_parse('127.0.0.1', 1), 0x7F000001);
+	is_deeply(WHATWG::URL::host_parse('256.0.0.1', 1), undef);
+	is_deeply(WHATWG::URL::host_parse('0..0x300', 1), '0..0x300');
 };
 
 subtest 'ipv4_number_parse' => sub {
+	can_ok('WHATWG::URL', 'ipv4_number_parse');
+
 	my $r10;
 	$r10 = 0;
 	is(WHATWG::URL::ipv4_number_parse('', \$r10), 0);
@@ -362,6 +408,8 @@ subtest 'ipv4_number_parse' => sub {
 };
 
 subtest 'ipv4_parse' => sub {
+	can_ok('WHATWG::URL', 'ipv4_parse');
+
 	is(WHATWG::URL::ipv4_parse('0.0.0.0'), 0);
 	is(WHATWG::URL::ipv4_parse('0.0.0.1'), 1);
 	is(WHATWG::URL::ipv4_parse('0.0.1.0'), 256);
@@ -378,6 +426,7 @@ subtest 'ipv4_parse' => sub {
 	is(WHATWG::URL::ipv4_parse('0xe.0xf.0xg.0xh'), '0xe.0xf.0xg.0xh');
 	is(WHATWG::URL::ipv4_parse('0..0x300'), '0..0x300');
 	is(WHATWG::URL::ipv4_parse('255.255.256'), 4294902016);
+	is(WHATWG::URL::ipv4_parse('255.255.255.256'), undef);
 	is(WHATWG::URL::ipv4_parse('256.256.256.256'), undef);
 	is(WHATWG::URL::ipv4_parse('4294967295'), 4294967295);
 	is(WHATWG::URL::ipv4_parse('0.4294967295'), undef);
@@ -386,6 +435,8 @@ subtest 'ipv4_parse' => sub {
 };
 
 subtest 'ipv6_parse' => sub {
+	can_ok('WHATWG::URL', 'ipv6_parse');
+
 	is_deeply(WHATWG::URL::ipv6_parse(''), undef);
 	is_deeply(WHATWG::URL::ipv6_parse(':'), undef);
 	is_deeply(WHATWG::URL::ipv6_parse('0:0:0:0:0:0:0:0:0'), undef);
@@ -425,6 +476,8 @@ subtest 'ipv6_parse' => sub {
 };
 
 subtest 'opaque_host_parse' => sub {
+	can_ok('WHATWG::URL', 'opaque_host_parse');
+
 	is(WHATWG::URL::opaque_host_parse(''), '');
 	is(WHATWG::URL::opaque_host_parse('ab'), 'ab');
 	is(WHATWG::URL::opaque_host_parse("a\N{U+0000}b"), undef);
@@ -452,10 +505,40 @@ subtest 'opaque_host_parse' => sub {
 #
 
 subtest 'host_serialize' => sub {
-	plan skip_all => 'TODO';
+	can_ok('WHATWG::URL', 'host_serialize');
+
+	# empty host
+	is(WHATWG::URL::host_serialize(''), '');
+	is(WHATWG::URL::host_serialize(undef), undef);
+
+	# IPv4 address
+	is(WHATWG::URL::host_serialize(0x00000000), '0.0.0.0');
+	is(WHATWG::URL::host_serialize(0x00000001), '0.0.0.1');
+	is(WHATWG::URL::host_serialize(0xFFFFFFFF), '255.255.255.255');
+
+	# IPv6 address
+	is(WHATWG::URL::host_serialize([ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 ]), '[::]');
+	is(WHATWG::URL::host_serialize([ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0001 ]), '[::1]');
+	is(WHATWG::URL::host_serialize([ 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001 ]), '[1:1:1:1:1:1:1:1]');
+	is(WHATWG::URL::host_serialize([ 0x0000, 0x0001, 0x0000, 0x0001, 0x0000, 0x0001, 0x0000, 0x0001 ]), '[0:1:0:1:0:1:0:1]');
+	is(WHATWG::URL::host_serialize([ 0x0001, 0x0000, 0x0001, 0x0000, 0x0001, 0x0000, 0x0001, 0x0000 ]), '[1:0:1:0:1:0:1:0]');
+	is(WHATWG::URL::host_serialize([ 0x0001, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0001 ]), '[1::1]');
+	is(WHATWG::URL::host_serialize([ 0xF, 0xF, 0xF, 0xF, 0xF, 0xF, 0xF, 0xF ]), '[f:f:f:f:f:f:f:f]');
+	is(WHATWG::URL::host_serialize([ 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF ]), '[ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff]');
+
+	# domain or opaque host
+	is(WHATWG::URL::host_serialize('example.com'), 'example.com');
+	is(WHATWG::URL::host_serialize('example.com.'), 'example.com.');
+	is(WHATWG::URL::host_serialize("a\N{U+0025}b"), "a\N{U+0025}b");
+	is(WHATWG::URL::host_serialize("a\N{U+0024}b"), "a\N{U+0024}b");
+	is(WHATWG::URL::host_serialize('a%C2%A2b'), 'a%C2%A2b');
+	is(WHATWG::URL::host_serialize('a%E2%82%ACb'), 'a%E2%82%ACb');
+	is(WHATWG::URL::host_serialize('a%F0%90%8D%88b'), 'a%F0%90%8D%88b');
 };
 
 subtest 'ipv4_serialize' => sub {
+	can_ok('WHATWG::URL', 'ipv4_serialize');
+
 	my @i = ( 0x00, 0x01, 0x0F, 0x7F, 0xFF );
 	foreach my $w (@i) {
 		foreach my $x (@i) {
@@ -479,6 +562,8 @@ subtest 'ipv4_serialize' => sub {
 };
 
 subtest 'ipv6_serialize' => sub {
+	can_ok('WHATWG::URL', 'ipv6_serialize');
+
 	is(WHATWG::URL::ipv6_serialize([ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 ]), '::');
 	is(WHATWG::URL::ipv6_serialize([ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0001 ]), '::1');
 	is(WHATWG::URL::ipv6_serialize([ 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001 ]), '1:1:1:1:1:1:1:1');
@@ -487,6 +572,98 @@ subtest 'ipv6_serialize' => sub {
 	is(WHATWG::URL::ipv6_serialize([ 0x0001, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0001 ]), '1::1');
 	is(WHATWG::URL::ipv6_serialize([ 0xF, 0xF, 0xF, 0xF, 0xF, 0xF, 0xF, 0xF ]), 'f:f:f:f:f:f:f:f');
 	is(WHATWG::URL::ipv6_serialize([ 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF ]), 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff');
+};
+
+#
+# 4.1. URL representation
+#
+
+subtest 'new' => sub {
+	can_ok('WHATWG::URL', 'new');
+
+	my $url = WHATWG::URL->new();
+
+	isa_ok($url, 'WHATWG::URL');
+
+	is($url->{'scheme'}, '');
+	is($url->{'username'}, '');
+	is($url->{'password'}, '');
+	is($url->{'host'}, undef);
+	is($url->{'port'}, undef);
+	is_deeply($url->{'path'}, []);
+	is($url->{'query'}, undef);
+	is($url->{'fragment'}, undef);
+	ok(!$url->{'cannot_be_a_base_url_flag'});
+	is($url->{'object'}, undef);
+};
+
+#
+# 4.2. URL miscellaneous
+#
+
+subtest 'is_special' => sub {
+	can_ok('WHATWG::URL', 'is_special');
+
+	ok(WHATWG::URL->basic_url_parse('ftp://example.org/')->is_special);
+	ok(WHATWG::URL->basic_url_parse('file://example.org/')->is_special);
+	ok(WHATWG::URL->basic_url_parse('gopher://example.org/')->is_special);
+	ok(WHATWG::URL->basic_url_parse('http://example.org/')->is_special);
+	ok(WHATWG::URL->basic_url_parse('https://example.org/')->is_special);
+	ok(WHATWG::URL->basic_url_parse('ws://example.org/')->is_special);
+	ok(WHATWG::URL->basic_url_parse('wss://example.org/')->is_special);
+
+	ok(!WHATWG::URL->basic_url_parse('test://example.org/')->is_special);
+	ok(!WHATWG::URL->basic_url_parse('not-special://example.org/')->is_special);
+};
+
+subtest 'includes_credentials' => sub {
+	can_ok('WHATWG::URL', 'includes_credentials');
+
+	ok(WHATWG::URL->basic_url_parse('http://username@example.org/')->includes_credentials);
+	ok(WHATWG::URL->basic_url_parse('http://username:@example.org/')->includes_credentials);
+	ok(WHATWG::URL->basic_url_parse('http://:password@example.org/')->includes_credentials);
+	ok(WHATWG::URL->basic_url_parse('http://username:password@example.org/')->includes_credentials);
+
+	ok(!WHATWG::URL->basic_url_parse('http://@example.org/')->includes_credentials);
+	ok(!WHATWG::URL->basic_url_parse('http://:@example.org/')->includes_credentials);
+};
+
+subtest 'shorten_path' => sub {
+	can_ok('WHATWG::URL', 'shorten_path');
+
+	subtest 'empty path' => sub {
+		my $empty_url = WHATWG::URL->new();
+
+		is_deeply($empty_url->{'path'}, []);
+
+		$empty_url->shorten_path();
+
+		is_deeply($empty_url->{'path'}, []);
+	};
+
+	my $tests = [
+		[ 'http://example.org', [ '' ], [] ],
+		[ 'http://example.org/', [ '' ], [] ],
+		[ 'file://example.org/', [ '' ], [] ],
+		[ 'file://example.org/this/is/a/test', [ 'this', 'is', 'a', 'test' ], [ 'this', 'is', 'a' ] ],
+		[ 'file://C:', [ 'C:' ], [ 'C:' ] ],
+		[ 'file://z:', [ 'z:' ], [ 'z:' ] ],
+	];
+
+	foreach my $test ($tests->@*) {
+		print Dumper($test);
+
+		subtest $test->[0] => sub {
+			my $url = WHATWG::URL->basic_url_parse($test->[0]);
+
+			is_deeply($url->{'path'}, $test->[1]);
+
+			$url->shorten_path();
+
+			is_deeply($url->{'path'}, $test->[2]);
+		};
+	}
+
 };
 
 ###
