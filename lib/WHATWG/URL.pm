@@ -10,7 +10,7 @@ WHATWG::URL - Primary functionality from the WHATWG URL standard
 
 =cut
 
-our $VERSION = '0.1.0-20170615';
+our $VERSION = '0.1.0-20170617';
 
 use List::Util ();
 use Encode ();
@@ -179,9 +179,6 @@ sub host_parse {
 	}
 
 	my $ipv4_host = ipv4_parse($ascii_domain);
-
-	# XXX
-	print Dumper($input, $domain, $ascii_domain, $ipv4_host);
 
 	# XXX: Make sure this is the right way to identify an IPv4 address.
 	{
@@ -490,9 +487,6 @@ sub opaque_host_parse {
 sub host_serialize {
 	my ($host) = @_;
 
-	# XXX
-	print Dumper($host);
-
 	# XXX: Make sure this is the right way to identify an IPv4 address.
 	if ($host ne '' && int($host) eq $host) {
 		return ipv4_serialize($host);
@@ -658,7 +652,7 @@ sub basic_url_parse {
 	my ($class, $input, $base, $encoding_override, $url, $state_override) = @_;
 
 	# XXX
-	print Dumper($input, $base);
+	# print Dumper($input, $base);
 
 	unless (defined $url) {
 		$url = $class->new();
@@ -694,11 +688,11 @@ sub basic_url_parse {
 
 	while (1) {
 		# XXX
-		{
-			no warnings 'uninitialized';
-			print "$state\n";
-			print "${\$pointer->c}\t$buffer\n";
-		}
+		# {
+		# 	no warnings 'uninitialized';
+		# 	print "$state\n";
+		# 	print "${\$pointer->c}\t$buffer\n";
+		# }
 
 		given ($state) {
 			when ('scheme start state') {
@@ -1335,7 +1329,7 @@ sub basic_url_parse {
 	}
 
 	# XXX
-	print Dumper($url);
+	# print Dumper($url);
 
 	return $url;
 }
@@ -1389,10 +1383,20 @@ sub serialize {
 		$output .= chr(0x0023) . $self->{'fragment'};
 	}
 
-	# XXX
-	print Dumper($output);
-
 	return $output;
+}
+
+#
+# 4.6. URL equivalence
+#
+
+sub equals {
+	my ($A, $B, $exclude_fragments_flag) = @_;
+
+	my $serialized_A = $A->serialize($exclude_fragments_flag);
+	my $serialized_B = $B->serialize($exclude_fragments_flag);
+
+	return ($serialized_A eq $serialized_B);
 }
 
 =head1 LICENSE

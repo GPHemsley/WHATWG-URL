@@ -666,6 +666,106 @@ subtest 'shorten_path' => sub {
 
 };
 
+#
+# 4.4. URL parsing
+#
+
+subtest 'basic_url_parse' => sub {
+	can_ok('WHATWG::URL', 'basic_url_parse');
+
+	# TODO
+};
+
+#
+# 4.5. URL serializing
+#
+
+subtest 'serialize' => sub {
+	can_ok('WHATWG::URL', 'serialize');
+
+	is(WHATWG::URL->basic_url_parse('xyz://u:p@example.org:9999/test/ing/123?query=nonnull#alsononnull')->serialize(), 'xyz://u:p@example.org:9999/test/ing/123?query=nonnull#alsononnull');
+	is(WHATWG::URL->basic_url_parse('xyz://u:p@example.org:9999/test/ing/123?query=nonnull')->serialize(), 'xyz://u:p@example.org:9999/test/ing/123?query=nonnull');
+	is(WHATWG::URL->basic_url_parse('xyz://u:p@example.org:9999/test/ing/123?query=nonnull#alsononnull')->serialize(1), 'xyz://u:p@example.org:9999/test/ing/123?query=nonnull');
+	is(WHATWG::URL->basic_url_parse('xyz://u:p@example.org:9999/test/ing/123?query=nonnull')->serialize(1), 'xyz://u:p@example.org:9999/test/ing/123?query=nonnull');
+	is(WHATWG::URL->basic_url_parse('xyz://u:p@example.org:9999/test/ing/123#alsononnull')->serialize(), 'xyz://u:p@example.org:9999/test/ing/123#alsononnull');
+	is(WHATWG::URL->basic_url_parse('xyz://u:p@example.org:9999/test/ing/123')->serialize(), 'xyz://u:p@example.org:9999/test/ing/123');
+	is(WHATWG::URL->basic_url_parse('xyz://u:p@example.org:9999/test/ing/123#alsononnull')->serialize(1), 'xyz://u:p@example.org:9999/test/ing/123');
+	is(WHATWG::URL->basic_url_parse('xyz://u:p@example.org:9999/test/ing/123')->serialize(1), 'xyz://u:p@example.org:9999/test/ing/123');
+	is(WHATWG::URL->basic_url_parse('xyz://u:p@example.org/test/ing/123?query=nonnull#alsononnull')->serialize(), 'xyz://u:p@example.org/test/ing/123?query=nonnull#alsononnull');
+	is(WHATWG::URL->basic_url_parse('xyz://u:p@example.org/test/ing/123?query=nonnull')->serialize(), 'xyz://u:p@example.org/test/ing/123?query=nonnull');
+	is(WHATWG::URL->basic_url_parse('xyz://u:p@example.org/test/ing/123?query=nonnull#alsononnull')->serialize(1), 'xyz://u:p@example.org/test/ing/123?query=nonnull');
+	is(WHATWG::URL->basic_url_parse('xyz://u:p@example.org/test/ing/123?query=nonnull')->serialize(1), 'xyz://u:p@example.org/test/ing/123?query=nonnull');
+	is(WHATWG::URL->basic_url_parse('xyz://u:p@example.org/test/ing/123#alsononnull')->serialize(), 'xyz://u:p@example.org/test/ing/123#alsononnull');
+	is(WHATWG::URL->basic_url_parse('xyz://u:p@example.org/test/ing/123')->serialize(), 'xyz://u:p@example.org/test/ing/123');
+	is(WHATWG::URL->basic_url_parse('xyz://u:p@example.org/test/ing/123#alsononnull')->serialize(1), 'xyz://u:p@example.org/test/ing/123');
+	is(WHATWG::URL->basic_url_parse('xyz://u:p@example.org/test/ing/123')->serialize(1), 'xyz://u:p@example.org/test/ing/123');
+	is(WHATWG::URL->basic_url_parse('xyz://u@example.org:9999/test/ing/123?query=nonnull#alsononnull')->serialize(), 'xyz://u@example.org:9999/test/ing/123?query=nonnull#alsononnull');
+	is(WHATWG::URL->basic_url_parse('xyz://u@example.org:9999/test/ing/123?query=nonnull')->serialize(), 'xyz://u@example.org:9999/test/ing/123?query=nonnull');
+	is(WHATWG::URL->basic_url_parse('xyz://u@example.org:9999/test/ing/123?query=nonnull#alsononnull')->serialize(1), 'xyz://u@example.org:9999/test/ing/123?query=nonnull');
+	is(WHATWG::URL->basic_url_parse('xyz://u@example.org:9999/test/ing/123?query=nonnull')->serialize(1), 'xyz://u@example.org:9999/test/ing/123?query=nonnull');
+	is(WHATWG::URL->basic_url_parse('xyz://u@example.org:9999/test/ing/123#alsononnull')->serialize(), 'xyz://u@example.org:9999/test/ing/123#alsononnull');
+	is(WHATWG::URL->basic_url_parse('xyz://u@example.org:9999/test/ing/123')->serialize(), 'xyz://u@example.org:9999/test/ing/123');
+	is(WHATWG::URL->basic_url_parse('xyz://u@example.org:9999/test/ing/123#alsononnull')->serialize(1), 'xyz://u@example.org:9999/test/ing/123');
+	is(WHATWG::URL->basic_url_parse('xyz://u@example.org:9999/test/ing/123')->serialize(1), 'xyz://u@example.org:9999/test/ing/123');
+	is(WHATWG::URL->basic_url_parse('xyz://u@example.org/test/ing/123?query=nonnull#alsononnull')->serialize(), 'xyz://u@example.org/test/ing/123?query=nonnull#alsononnull');
+	is(WHATWG::URL->basic_url_parse('xyz://u@example.org/test/ing/123?query=nonnull')->serialize(), 'xyz://u@example.org/test/ing/123?query=nonnull');
+	is(WHATWG::URL->basic_url_parse('xyz://u@example.org/test/ing/123?query=nonnull#alsononnull')->serialize(1), 'xyz://u@example.org/test/ing/123?query=nonnull');
+	is(WHATWG::URL->basic_url_parse('xyz://u@example.org/test/ing/123?query=nonnull')->serialize(1), 'xyz://u@example.org/test/ing/123?query=nonnull');
+	is(WHATWG::URL->basic_url_parse('xyz://u@example.org/test/ing/123#alsononnull')->serialize(), 'xyz://u@example.org/test/ing/123#alsononnull');
+	is(WHATWG::URL->basic_url_parse('xyz://u@example.org/test/ing/123')->serialize(), 'xyz://u@example.org/test/ing/123');
+	is(WHATWG::URL->basic_url_parse('xyz://u@example.org/test/ing/123#alsononnull')->serialize(1), 'xyz://u@example.org/test/ing/123');
+	is(WHATWG::URL->basic_url_parse('xyz://u@example.org/test/ing/123')->serialize(1), 'xyz://u@example.org/test/ing/123');
+	is(WHATWG::URL->basic_url_parse('xyz://example.org:9999/test/ing/123?query=nonnull#alsononnull')->serialize(), 'xyz://example.org:9999/test/ing/123?query=nonnull#alsononnull');
+	is(WHATWG::URL->basic_url_parse('xyz://example.org:9999/test/ing/123?query=nonnull')->serialize(), 'xyz://example.org:9999/test/ing/123?query=nonnull');
+	is(WHATWG::URL->basic_url_parse('xyz://example.org:9999/test/ing/123?query=nonnull#alsononnull')->serialize(1), 'xyz://example.org:9999/test/ing/123?query=nonnull');
+	is(WHATWG::URL->basic_url_parse('xyz://example.org:9999/test/ing/123?query=nonnull')->serialize(1), 'xyz://example.org:9999/test/ing/123?query=nonnull');
+	is(WHATWG::URL->basic_url_parse('xyz://example.org:9999/test/ing/123#alsononnull')->serialize(), 'xyz://example.org:9999/test/ing/123#alsononnull');
+	is(WHATWG::URL->basic_url_parse('xyz://example.org:9999/test/ing/123')->serialize(), 'xyz://example.org:9999/test/ing/123');
+	is(WHATWG::URL->basic_url_parse('xyz://example.org:9999/test/ing/123#alsononnull')->serialize(1), 'xyz://example.org:9999/test/ing/123');
+	is(WHATWG::URL->basic_url_parse('xyz://example.org:9999/test/ing/123')->serialize(1), 'xyz://example.org:9999/test/ing/123');
+	is(WHATWG::URL->basic_url_parse('xyz://example.org/test/ing/123?query=nonnull#alsononnull')->serialize(), 'xyz://example.org/test/ing/123?query=nonnull#alsononnull');
+	is(WHATWG::URL->basic_url_parse('xyz://example.org/test/ing/123?query=nonnull')->serialize(), 'xyz://example.org/test/ing/123?query=nonnull');
+	is(WHATWG::URL->basic_url_parse('xyz://example.org/test/ing/123?query=nonnull#alsononnull')->serialize(1), 'xyz://example.org/test/ing/123?query=nonnull');
+	is(WHATWG::URL->basic_url_parse('xyz://example.org/test/ing/123?query=nonnull')->serialize(1), 'xyz://example.org/test/ing/123?query=nonnull');
+	is(WHATWG::URL->basic_url_parse('xyz://example.org/test/ing/123#alsononnull')->serialize(), 'xyz://example.org/test/ing/123#alsononnull');
+	is(WHATWG::URL->basic_url_parse('xyz://example.org/test/ing/123')->serialize(), 'xyz://example.org/test/ing/123');
+	is(WHATWG::URL->basic_url_parse('xyz://example.org/test/ing/123#alsononnull')->serialize(1), 'xyz://example.org/test/ing/123');
+	is(WHATWG::URL->basic_url_parse('xyz://example.org/test/ing/123')->serialize(1), 'xyz://example.org/test/ing/123');
+	is(WHATWG::URL->basic_url_parse('file:test/ing/123?query=nonnull#alsononnull')->serialize(), 'file:///test/ing/123?query=nonnull#alsononnull');
+	is(WHATWG::URL->basic_url_parse('file:test/ing/123?query=nonnull')->serialize(), 'file:///test/ing/123?query=nonnull');
+	is(WHATWG::URL->basic_url_parse('file:test/ing/123?query=nonnull#alsononnull')->serialize(1), 'file:///test/ing/123?query=nonnull');
+	is(WHATWG::URL->basic_url_parse('file:test/ing/123?query=nonnull')->serialize(1), 'file:///test/ing/123?query=nonnull');
+	is(WHATWG::URL->basic_url_parse('file:test/ing/123#alsononnull')->serialize(), 'file:///test/ing/123#alsononnull');
+	is(WHATWG::URL->basic_url_parse('file:test/ing/123')->serialize(), 'file:///test/ing/123');
+	is(WHATWG::URL->basic_url_parse('file:test/ing/123#alsononnull')->serialize(1), 'file:///test/ing/123');
+	is(WHATWG::URL->basic_url_parse('file:test/ing/123')->serialize(1), 'file:///test/ing/123');
+	is(WHATWG::URL->basic_url_parse('xyz:example/test/ing/123?query=nonnull#alsononnull')->serialize(), 'xyz:example/test/ing/123?query=nonnull#alsononnull');
+	is(WHATWG::URL->basic_url_parse('xyz:example/test/ing/123?query=nonnull')->serialize(), 'xyz:example/test/ing/123?query=nonnull');
+	is(WHATWG::URL->basic_url_parse('xyz:example/test/ing/123?query=nonnull#alsononnull')->serialize(1), 'xyz:example/test/ing/123?query=nonnull');
+	is(WHATWG::URL->basic_url_parse('xyz:example/test/ing/123?query=nonnull')->serialize(1), 'xyz:example/test/ing/123?query=nonnull');
+	is(WHATWG::URL->basic_url_parse('xyz:example/test/ing/123#alsononnull')->serialize(), 'xyz:example/test/ing/123#alsononnull');
+	is(WHATWG::URL->basic_url_parse('xyz:example/test/ing/123')->serialize(), 'xyz:example/test/ing/123');
+	is(WHATWG::URL->basic_url_parse('xyz:example/test/ing/123#alsononnull')->serialize(1), 'xyz:example/test/ing/123');
+	is(WHATWG::URL->basic_url_parse('xyz:example/test/ing/123')->serialize(1), 'xyz:example/test/ing/123');
+};
+
+#
+# 4.6. URL equivalence
+#
+
+subtest 'equals' => sub {
+	can_ok('WHATWG::URL', 'equals');
+
+	my $url1 = WHATWG::URL->basic_url_parse('xyz://u:p@example.org/test/ing/123?query=nonnull#same');
+	my $url2 = WHATWG::URL->basic_url_parse('xyz://u:p@example.org/test/ing/123?query=nonnull#same');
+	my $url3 = WHATWG::URL->basic_url_parse('xyz://u:p@example.org/test/ing/123?query=nonnull#different');
+
+	ok($url1->equals($url2));
+	ok($url1->equals($url2, 1));
+	ok(!$url1->equals($url3));
+	ok($url1->equals($url3, 1));
+};
+
 ###
 
 done_testing();
@@ -739,5 +839,3 @@ done_testing();
 # # is(WHATWG::URL->basic_url_parse('http://../', WHATWG::URL->basic_url_parse('about:blank'))->serialize(), 'http://../');
 # # is(WHATWG::URL->basic_url_parse('http://../', WHATWG::URL->basic_url_parse('http://example.org/'))->serialize(), 'http://../');
 # is(WHATWG::URL->basic_url_parse('http://0..0x300/', WHATWG::URL->basic_url_parse('about:blank'))->serialize(), 'http://0..0x300/');
-
-# done_testing();
