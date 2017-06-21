@@ -10,7 +10,7 @@ WHATWG::URL - Primary functionality from the WHATWG URL standard
 
 =cut
 
-our $VERSION = '0.1.0-20170617';
+our $VERSION = '0.1.0-20170621';
 
 use List::Util ();
 use Encode ();
@@ -626,6 +626,12 @@ sub includes_credentials {
 	my $self = shift;
 
 	return ($self->{'username'} ne '' || $self->{'password'} ne '');
+}
+
+sub cannot_have_username_password_port {
+	my $self = shift;
+
+	return ((!defined $self->{'host'} || $self->{'host'} eq '') || ($self->{'cannot_be_a_base_url_flag'}) || ($self->{'scheme'} eq 'file'));
 }
 
 sub shorten_path {

@@ -628,6 +628,17 @@ subtest 'includes_credentials' => sub {
 	ok(!WHATWG::URL->basic_url_parse('http://:@example.org/')->includes_credentials);
 };
 
+subtest 'cannot_have_username_password_port' => sub {
+	if (can_ok('WHATWG::URL', 'cannot_have_username_password_port')) {
+		ok(WHATWG::URL->basic_url_parse('mailto:test@example.org')->cannot_have_username_password_port);
+		ok(WHATWG::URL->basic_url_parse('file:///dev/null')->cannot_have_username_password_port);
+		ok(WHATWG::URL->basic_url_parse('#test', WHATWG::URL->basic_url_parse('mailto:test@example.org'))->cannot_have_username_password_port);
+		ok(WHATWG::URL->basic_url_parse('file://example.org/file/test/path')->cannot_have_username_password_port);
+
+		ok(!WHATWG::URL->basic_url_parse('http://example.org/')->cannot_have_username_password_port);
+	}
+};
+
 subtest 'shorten_path' => sub {
 	can_ok('WHATWG::URL', 'shorten_path');
 
