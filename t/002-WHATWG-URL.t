@@ -687,6 +687,42 @@ subtest 'basic_url_parse' => sub {
 	# TODO
 };
 
+subtest 'set_username' => sub {
+	if (can_ok('WHATWG::URL', 'set_username')) {
+		my $url = WHATWG::URL->basic_url_parse('http://example.org/');
+
+		is($url->{'username'}, '');
+
+		$url->set_username('foo');
+
+		is($url->{'username'}, 'foo');
+
+		$url->set_username('bar');
+
+		is($url->{'username'}, 'bar');
+
+		# TODO: Percent-encoded stuff
+	}
+};
+
+subtest 'set_password' => sub {
+	if (can_ok('WHATWG::URL', 'set_password')) {
+		my $url = WHATWG::URL->basic_url_parse('http://example.org/');
+
+		is($url->{'password'}, '');
+
+		$url->set_password('foo');
+
+		is($url->{'password'}, 'foo');
+
+		$url->set_password('bar');
+
+		is($url->{'password'}, 'bar');
+
+		# TODO: Percent-encoded stuff
+	}
+};
+
 #
 # 4.5. URL serializing
 #
@@ -775,6 +811,40 @@ subtest 'equals' => sub {
 	ok($url1->equals($url2, 1));
 	ok(!$url1->equals($url3));
 	ok($url1->equals($url3, 1));
+};
+
+#
+# 5.1. application/x-www-form-urlencoded parsing
+#
+
+subtest 'urlencoded_parse' => sub {
+	if (can_ok('WHATWG::URL', 'urlencoded_parse')) {
+		is_deeply(WHATWG::URL::urlencoded_parse(Encode::encode('UTF-8', 'a=b')), [ [ 'a', 'b' ] ]);
+		is_deeply(WHATWG::URL::urlencoded_parse(Encode::encode('UTF-8', 'a=b&c=d')), [ [ 'a', 'b' ], [ 'c', 'd' ] ]);
+		is_deeply(WHATWG::URL::urlencoded_parse(Encode::encode('UTF-8', 'a&c=d')), [ [ 'a', '' ], [ 'c', 'd' ] ]);
+		is_deeply(WHATWG::URL::urlencoded_parse(Encode::encode('UTF-8', 'a=b&c')), [ [ 'a', 'b' ], [ 'c', '' ] ]);
+		is_deeply(WHATWG::URL::urlencoded_parse(Encode::encode('UTF-8', 'a=b&')), [ [ 'a', 'b' ] ]);
+		is_deeply(WHATWG::URL::urlencoded_parse(Encode::encode('UTF-8', 'a=b&&e=f')), [ [ 'a', 'b' ], [ 'e', 'f' ] ]);
+		is_deeply(WHATWG::URL::urlencoded_parse(Encode::encode('UTF-8', 'foo+bar=baz+foz')), [ [ 'foo bar', 'baz foz' ] ]);
+		is_deeply(WHATWG::URL::urlencoded_parse(Encode::encode('UTF-8', 'foo%2Ebar=baz%2Efoz')), [ [ 'foo.bar', 'baz.foz' ] ]);
+	}
+};
+
+#
+# 5.3. Hooks
+#
+
+subtest 'urlencoded_string_parse' => sub {
+	if (can_ok('WHATWG::URL', 'urlencoded_string_parse')) {
+		is_deeply(WHATWG::URL::urlencoded_string_parse('a=b'), [ [ 'a', 'b' ] ]);
+		is_deeply(WHATWG::URL::urlencoded_string_parse('a=b&c=d'), [ [ 'a', 'b' ], [ 'c', 'd' ] ]);
+		is_deeply(WHATWG::URL::urlencoded_string_parse('a&c=d'), [ [ 'a', '' ], [ 'c', 'd' ] ]);
+		is_deeply(WHATWG::URL::urlencoded_string_parse('a=b&c'), [ [ 'a', 'b' ], [ 'c', '' ] ]);
+		is_deeply(WHATWG::URL::urlencoded_string_parse('a=b&'), [ [ 'a', 'b' ] ]);
+		is_deeply(WHATWG::URL::urlencoded_string_parse('a=b&&e=f'), [ [ 'a', 'b' ], [ 'e', 'f' ] ]);
+		is_deeply(WHATWG::URL::urlencoded_string_parse('foo+bar=baz+foz'), [ [ 'foo bar', 'baz foz' ] ]);
+		is_deeply(WHATWG::URL::urlencoded_string_parse('foo%2Ebar=baz%2Efoz'), [ [ 'foo.bar', 'baz.foz' ] ]);
+	}
 };
 
 ###

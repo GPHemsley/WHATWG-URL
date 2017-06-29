@@ -10,7 +10,7 @@ WHATWG::URL - Primary functionality from the WHATWG URL standard
 
 =cut
 
-our $VERSION = '0.1.0-20170621';
+our $VERSION = '0.1.0-20170629';
 
 use List::Util ();
 use Encode ();
@@ -1340,6 +1340,26 @@ sub basic_url_parse {
 	return $url;
 }
 
+sub set_username {
+	my ($self, $username) = @_;
+
+	$self->{'username'} = '';
+
+	foreach my $code_point (split(m//, $username)) {
+		$self->{'username'} .= utf8_percent_encode($code_point, $userinfo_percent_encode_set);
+	}
+}
+
+sub set_password {
+	my ($self, $password) = @_;
+
+	$self->{'password'} = '';
+
+	foreach my $code_point (split(m//, $password)) {
+		$self->{'password'} .= utf8_percent_encode($code_point, $userinfo_percent_encode_set);
+	}
+}
+
 #
 # 4.5. URL serializing
 #
@@ -1403,6 +1423,54 @@ sub equals {
 	my $serialized_B = $B->serialize($exclude_fragments_flag);
 
 	return ($serialized_A eq $serialized_B);
+}
+
+#
+# 5.1. application/x-www-form-urlencoded parsing
+#
+
+sub urlencoded_parse {
+	my ($input) = @_;
+
+	my @sequences = split(m/\x26/, $input);
+
+	my $output = [];
+
+	foreach my $bytes (@sequences) {
+		if ($bytes eq '') {
+			next;
+		}
+
+		my $name;
+		my $value;
+		if ($bytes =~ m/\x3D/) {
+			($name, $value) = ($bytes =~ m/^(.*?)\x3D(.*)$/);
+		}
+		else {
+			$name = $bytes;
+			$value = '';
+		}
+
+		$name =~ s/\x2B/\x20/g;
+		$value =~ s/\x2B/\x20/g;
+
+		my $name_string = Encode::decode('UTF-8', percent_decode($name));  # TODO: UTF-8 decode without BOM
+		my $value_string = Encode::decode('UTF-8', percent_decode($value));  # TODO: UTF-8 decode without BOM
+
+		push $output->@*, [ $name_string, $value_string ];
+	}
+
+	return $output;
+}
+
+#
+# 5.3. Hooks
+#
+
+sub urlencoded_string_parse {
+	my ($input) = @_;
+
+	return urlencoded_parse(Encode::encode('UTF-8', $input));  # TODO: UTF-8 encode
 }
 
 =head1 LICENSE
