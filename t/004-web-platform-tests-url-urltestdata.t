@@ -20,7 +20,7 @@ use_ok('WHATWG::URL');
 use_ok('WHATWG::URL::URL');
 use_ok('WHATWG::URL::URLSearchParams');
 
-# https://github.com/w3c/web-platform-tests/tree/master/url
+# https://github.com/w3c/web-platform-tests/blob/master/url/urltestdata.json
 SKIP: {
 	my $user_agent = LWP::UserAgent->new();
 
@@ -128,7 +128,7 @@ SKIP: {
 
 	foreach my $test ($test_data->@*) {
 		unless (ref $test eq 'HASH') {
-			note(encode_utf8($test));
+			note(Encode::encode_utf8($test));
 			next;
 		}
 

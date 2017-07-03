@@ -10,7 +10,7 @@ WHATWG::URL::URL - The URL class from the WHATWG URL standard
 
 =cut
 
-our $VERSION = '0.1.0-20170702';
+our $VERSION = '0.1.0-20170703';
 
 use WHATWG::URL;
 use WHATWG::URL::URLSearchParams;
@@ -247,7 +247,7 @@ sub search {
 	my $value = shift;
 
 	if (defined $value) {
-		\my $url = $self->{'url'};
+		\my $url = \$self->{'url'};
 
 		if ($value eq '') {
 			$url->{'query'} = undef;
@@ -259,7 +259,7 @@ sub search {
 
 		$url->{'query'} = '';
 
-		WHATWG::URL->basic_url_parse($value, undef, undef, $url, 'query state');
+		WHATWG::URL->basic_url_parse($input, undef, undef, $url, 'query state');
 
 		$self->{'query_object'}->{'list'} = WHATWG::URL::urlencoded_string_parse($input);
 	}
@@ -291,7 +291,7 @@ sub hash {
 
 		$self->{'url'}->{'fragment'} = '';
 
-		WHATWG::URL->basic_url_parse($value, undef, undef, $self->{'url'}, 'fragment state');
+		WHATWG::URL->basic_url_parse($input, undef, undef, $self->{'url'}, 'fragment state');
 	}
 
 	if (!defined $self->{'url'}->{'fragment'} || $self->{'url'}->{'fragment'} eq '') {
