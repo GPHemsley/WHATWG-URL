@@ -10,7 +10,7 @@ WHATWG::URL::URL - The URL class from the WHATWG URL standard
 
 =cut
 
-our $VERSION = '0.1.0-20170701';
+our $VERSION = '0.1.0-20170702';
 
 use WHATWG::URL;
 use WHATWG::URL::URLSearchParams;
@@ -20,6 +20,8 @@ use Data::Dumper;
 
 use feature 'refaliasing';
 use experimental 'refaliasing';
+use feature 'postderef';
+use experimental 'postderef';
 
 use fields qw(url query_object);
 
