@@ -16,6 +16,7 @@ WriteMakefile(
     },
     BUILD_REQUIRES => {
         'Test::More' => '0',
+        'Test::Exception' => '0',
         'Devel::Cover' => '0',
         'LWP::UserAgent' => '0',
         'Encode' => '0',
