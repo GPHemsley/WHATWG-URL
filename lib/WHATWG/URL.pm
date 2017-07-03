@@ -10,7 +10,7 @@ WHATWG::URL - Primary functionality from the WHATWG URL standard
 
 =cut
 
-our $VERSION = '0.1.0-20170629';
+our $VERSION = '0.1.0-20170701';
 
 use List::Util ();
 use Encode ();
@@ -737,11 +737,15 @@ sub basic_url_parse {
 
 					$url->{'scheme'} = $buffer;
 
-					$buffer = '';
-
 					if (defined $state_override) {
+						if ($url->{'port'} eq $special_schemes->{$url->{'scheme'}}) {
+							$url->{'port'} = undef;
+						}
+
 						return;
 					}
+
+					$buffer = '';
 
 					if ($url->{'scheme'} eq 'file') {
 						if ($pointer->remaining !~ m'^//') {

@@ -10,9 +10,9 @@ WHATWG::URL::URLSearchParams - The URLSearchParams class from the WHATWG URL sta
 
 =cut
 
-our $VERSION = '0.1.0-20170604';
+our $VERSION = '0.1.0-20170618';
 
-use fields qw(_list _url_object);
+use fields qw(list url_object);
 
 sub new {
 	my ($class, $init) = @_;

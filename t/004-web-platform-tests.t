@@ -5,6 +5,7 @@ use strict;
 use warnings;
 
 use Test::More;
+use Test::Exception;
 use LWP::UserAgent ();
 use Encode;
 use JSON;
@@ -37,22 +38,88 @@ SKIP: {
 
 	# Fill in gaps in coverage.
 	my $test_data_gaps = [
-		# 'Basic URL parser',
-		# {
-		# 	'input' => '#',
-		# 	'base' => undef,
-		# 	'failure' => JSON::true,
-		# },
-		# {
-		# 	'input' => 'ftp://\\@',
-		# 	'base' => 'http://example.org/',
-		# 	'failure' => JSON::true,
-		# },
-		# {
-		# 	'input' => 'http://e\\x',
-		# 	'base' => 'http://example.org/',
-		# 	'failure' => JSON::true,
-		# },
+		'Bad bases',
+		{
+			'input' => 'test-a.html',
+			'base' => 'a',
+			'failure' => JSON::true,
+		},
+		{
+			'input' => 'test-a-slash.html',
+			'base' => 'a/',
+			'failure' => JSON::true,
+		},
+		{
+			'input' => 'test-a-slash-slash.html',
+			'base' => 'a//',
+			'failure' => JSON::true,
+		},
+		{
+			'input' => 'test-a-colon.html',
+			'base' => 'a:',
+			'failure' => JSON::true,
+		},
+		{
+			'input' => 'test-a-colon-slash.html',
+			'base' => 'a:/',
+			'href' => 'a:/test-a-colon-slash.html',
+			'protocol' => 'a:',
+			'username' => '',
+			'password' => '',
+			'host' => '',
+			'hostname' => '',
+			'port' => '',
+			'pathname' => '/test-a-colon-slash.html',
+			'search' => '',
+			'hash' => '',
+		},
+		{
+			'input' => 'test-a-colon-slash-slash.html',
+			'base' => 'a://',
+			'href' => 'a:///test-a-colon-slash-slash.html',
+			'protocol' => 'a:',
+			'username' => '',
+			'password' => '',
+			'host' => '',
+			'hostname' => '',
+			'port' => '',
+			'pathname' => '/test-a-colon-slash-slash.html',
+			'search' => '',
+			'hash' => '',
+		},
+		{
+			'input' => 'test-a-colon-b.html',
+			'base' => 'a:b',
+			'failure' => JSON::true,
+		},
+		{
+			'input' => 'test-a-colon-slash-b.html',
+			'base' => 'a:/b',
+			'href' => 'a:/test-a-colon-slash-b.html',
+			'protocol' => 'a:',
+			'username' => '',
+			'password' => '',
+			'host' => '',
+			'hostname' => '',
+			'port' => '',
+			'pathname' => '/test-a-colon-slash-b.html',
+			'search' => '',
+			'hash' => '',
+		},
+		{
+			'input' => 'test-a-colon-slash-slash-b.html',
+			'base' => 'a://b',
+			'href' => 'a://b/test-a-colon-slash-slash-b.html',
+			'protocol' => 'a:',
+			'username' => '',
+			'password' => '',
+			'host' => 'b',
+			'hostname' => 'b',
+			'port' => '',
+			'pathname' => '/test-a-colon-slash-slash-b.html',
+			'search' => '',
+			'hash' => '',
+		},
 	];
 	$test_data = [ $test_data->@*, $test_data_gaps->@* ];
 
@@ -67,10 +134,10 @@ SKIP: {
 
 		subtest Encode::encode('UTF-8', $test->{'input'}) => sub {
 			if (exists $test->{'failure'} && $test->{'failure'}) {
-				is(WHATWG::URL->basic_url_parse($test->{'input'}, WHATWG::URL->basic_url_parse($test->{'base'})), undef);
+				throws_ok { WHATWG::URL::URL->new($test->{'input'}, $test->{'base'}) } qr/TypeError/ || explain(WHATWG::URL::URL->new($test->{'input'}, $test->{'base'}));
 			}
 			else {
-				my $url = WHATWG::URL->basic_url_parse($test->{'input'}, WHATWG::URL->basic_url_parse($test->{'base'}));
+				my $url = WHATWG::URL::URL->new($test->{'input'}, WHATWG::URL::URL->new($test->{'base'}));
 
 				if (0) {
 					fail('placeholder - this should never happen');
@@ -79,11 +146,11 @@ SKIP: {
 					TODO: {
 						local $TODO = 'known issue with Net::IDN::UTS46';
 
-						isnt($url, undef);
+						isnt($url, undef) || explain($url);
 					}
 				}
 				else {
-					isnt($url, undef);
+					isnt($url, undef) || explain($url);
 				}
 
 				if (defined $url) {
@@ -94,11 +161,33 @@ SKIP: {
 						TODO: {
 							local $TODO = 'known issue with Net::IDN::UTS46';
 
-							is($url->serialize(), $test->{'href'});
+							is($url->href, $test->{'href'}) || explain($url);
+							is($url->toJSON(), $test->{'href'}) || explain($url);
+							is($url->host, $test->{'host'}) || explain($url);
+							is($url->hostname, $test->{'hostname'}) || explain($url);
 						}
 					}
 					else {
-						is($url->serialize(), $test->{'href'}) || explain($url);
+						is($url->href, $test->{'href'}) || explain($url);
+						is($url->toJSON(), $test->{'href'}) || explain($url);
+						is($url->host, $test->{'host'}) || explain($url);
+						is($url->hostname, $test->{'hostname'}) || explain($url);
+					}
+
+					is($url->protocol, $test->{'protocol'}) || explain($url);
+					is($url->username, $test->{'username'}) || explain($url);
+					is($url->password, $test->{'password'}) || explain($url);
+					is($url->port, $test->{'port'}) || explain($url);
+					is($url->pathname, $test->{'pathname'}) || explain($url);
+					is($url->search, $test->{'search'}) || explain($url);
+					is($url->hash, $test->{'hash'}) || explain($url);
+
+					TODO: {
+						local $TODO = 'origin';
+
+						if (exists $test->{'origin'}) {
+							is($url->origin, $test->{'origin'}) || explain($url);
+						}
 					}
 				}
 			}
