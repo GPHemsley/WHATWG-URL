@@ -38,88 +38,6 @@ SKIP: {
 
 	# Fill in gaps in coverage.
 	my $test_data_gaps = [
-		'Bad bases',
-		{
-			'input' => 'test-a.html',
-			'base' => 'a',
-			'failure' => JSON::true,
-		},
-		{
-			'input' => 'test-a-slash.html',
-			'base' => 'a/',
-			'failure' => JSON::true,
-		},
-		{
-			'input' => 'test-a-slash-slash.html',
-			'base' => 'a//',
-			'failure' => JSON::true,
-		},
-		{
-			'input' => 'test-a-colon.html',
-			'base' => 'a:',
-			'failure' => JSON::true,
-		},
-		{
-			'input' => 'test-a-colon-slash.html',
-			'base' => 'a:/',
-			'href' => 'a:/test-a-colon-slash.html',
-			'protocol' => 'a:',
-			'username' => '',
-			'password' => '',
-			'host' => '',
-			'hostname' => '',
-			'port' => '',
-			'pathname' => '/test-a-colon-slash.html',
-			'search' => '',
-			'hash' => '',
-		},
-		{
-			'input' => 'test-a-colon-slash-slash.html',
-			'base' => 'a://',
-			'href' => 'a:///test-a-colon-slash-slash.html',
-			'protocol' => 'a:',
-			'username' => '',
-			'password' => '',
-			'host' => '',
-			'hostname' => '',
-			'port' => '',
-			'pathname' => '/test-a-colon-slash-slash.html',
-			'search' => '',
-			'hash' => '',
-		},
-		{
-			'input' => 'test-a-colon-b.html',
-			'base' => 'a:b',
-			'failure' => JSON::true,
-		},
-		{
-			'input' => 'test-a-colon-slash-b.html',
-			'base' => 'a:/b',
-			'href' => 'a:/test-a-colon-slash-b.html',
-			'protocol' => 'a:',
-			'username' => '',
-			'password' => '',
-			'host' => '',
-			'hostname' => '',
-			'port' => '',
-			'pathname' => '/test-a-colon-slash-b.html',
-			'search' => '',
-			'hash' => '',
-		},
-		{
-			'input' => 'test-a-colon-slash-slash-b.html',
-			'base' => 'a://b',
-			'href' => 'a://b/test-a-colon-slash-slash-b.html',
-			'protocol' => 'a:',
-			'username' => '',
-			'password' => '',
-			'host' => 'b',
-			'hostname' => 'b',
-			'port' => '',
-			'pathname' => '/test-a-colon-slash-slash-b.html',
-			'search' => '',
-			'hash' => '',
-		},
 	];
 	$test_data = [ $test_data->@*, $test_data_gaps->@* ];
 
@@ -187,6 +105,14 @@ SKIP: {
 
 						if (exists $test->{'origin'}) {
 							is($url->origin, $test->{'origin'}) || explain($url);
+						}
+					}
+
+					TODO: {
+						local $TODO = 'searchParams';
+
+						if (exists $test->{'searchParams'}) {
+							is($url->searchParams, $test->{'searchParams'}) || explain($url);
 						}
 					}
 				}
