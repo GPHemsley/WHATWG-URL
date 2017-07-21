@@ -10,7 +10,7 @@ WHATWG::URL - Primary functionality from the WHATWG URL standard
 
 =cut
 
-our $VERSION = '0.1.0-20170701';
+our $VERSION = '0.1.0-20170720';
 
 use List::Util ();
 use Encode ();
@@ -978,7 +978,7 @@ sub basic_url_parse {
 					$buffer = '';
 					$state = 'port state';
 
-					if ($state_override eq 'hostname state') {
+					if (defined $state_override && $state_override eq 'hostname state') {
 						return;
 					}
 				}
