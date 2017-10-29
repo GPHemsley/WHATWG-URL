@@ -639,6 +639,30 @@ subtest 'cannot_have_username_password_port' => sub {
 	}
 };
 
+subtest 'starts_with_a_windows_drive_letter' => sub {
+	if (can_ok('WHATWG::URL', 'starts_with_a_windows_drive_letter')) {
+		ok(WHATWG::URL::starts_with_a_windows_drive_letter('c:'));
+		ok(WHATWG::URL::starts_with_a_windows_drive_letter('c:/'));
+		ok(!WHATWG::URL::starts_with_a_windows_drive_letter('c:a'));
+
+		ok(WHATWG::URL::starts_with_a_windows_drive_letter('X:'));
+		ok(WHATWG::URL::starts_with_a_windows_drive_letter('c|'));
+		ok(WHATWG::URL::starts_with_a_windows_drive_letter('Z|'));
+		ok(WHATWG::URL::starts_with_a_windows_drive_letter('c:\\'));
+		ok(WHATWG::URL::starts_with_a_windows_drive_letter('c:?'));
+		ok(WHATWG::URL::starts_with_a_windows_drive_letter('c:#'));
+		ok(WHATWG::URL::starts_with_a_windows_drive_letter('C|/'));
+
+		ok(!WHATWG::URL::starts_with_a_windows_drive_letter('c'));
+		ok(!WHATWG::URL::starts_with_a_windows_drive_letter('c:.'));
+		ok(!WHATWG::URL::starts_with_a_windows_drive_letter('c::'));
+		ok(!WHATWG::URL::starts_with_a_windows_drive_letter('c:%'));
+		ok(!WHATWG::URL::starts_with_a_windows_drive_letter('/fake/c:'));
+		ok(!WHATWG::URL::starts_with_a_windows_drive_letter('/fake/c:/not-real'));
+		ok(!WHATWG::URL::starts_with_a_windows_drive_letter('/fake/c:a'));
+	}
+};
+
 subtest 'shorten_path' => sub {
 	can_ok('WHATWG::URL', 'shorten_path');
 

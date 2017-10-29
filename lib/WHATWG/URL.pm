@@ -10,7 +10,7 @@ WHATWG::URL - Primary functionality from the WHATWG URL standard
 
 =cut
 
-our $VERSION = '0.1.0-20170720';
+our $VERSION = '0.1.0-20171029';
 
 use List::Util ();
 use Encode ();
@@ -634,6 +634,18 @@ sub cannot_have_username_password_port {
 	return ((!defined $self->{'host'} || $self->{'host'} eq '') || ($self->{'cannot_be_a_base_url_flag'}) || ($self->{'scheme'} eq 'file'));
 }
 
+# TODO: Use Infra.
+our $windows_drive_letter = q/[\N{U+0041}-\N{U+005A}\N{U+0061}-\N{U+007A}]/ . q/[\N{U+003A}\N{U+007C}]/;
+
+# TODO: Use Infra.
+our $normalized_windows_drive_letter = q/[\N{U+0041}-\N{U+005A}\N{U+0061}-\N{U+007A}]/ . q/\N{U+003A}/;
+
+sub starts_with_a_windows_drive_letter {
+	my ($string) = @_;
+
+	return ((length($string) >= 2) && (substr($string, 0, 2) =~ m/^$windows_drive_letter$/) && ((length($string) == 2) || (substr($string, 2, 1) =~ m/^[\N{U+002F}\N{U+005C}\N{U+003F}\N{U+0023}]$/)));
+}
+
 sub shorten_path {
 	my ($self) = @_;
 
@@ -643,7 +655,7 @@ sub shorten_path {
 		return;
 	}
 
-	if ($self->{'scheme'} eq 'file' && scalar(@path) == 1 && $path[0] =~ m/^[\N{U+0041}-\N{U+005A}\N{U+0061}-\N{U+007A}]\N{U+003A}$/) {
+	if ($self->{'scheme'} eq 'file' && scalar(@path) == 1 && $path[0] =~ m/^$normalized_windows_drive_letter$/) {
 		return;
 	}
 
@@ -1081,7 +1093,7 @@ sub basic_url_parse {
 							$state = 'fragment state';
 						}
 						default {
-							if ((length($pointer->remaining) == 0) || (($pointer->c . substr($pointer->remaining, 0, 1)) !~ m/^[\N{U+0041}-\N{U+005A}\N{U+0061}-\N{U+007A}][\N{U+003A}\N{U+007C}]$/) || (length($pointer->remaining) >= 2 && substr($pointer->remaining, 1, 1) !~ m/^[\N{U+002F}\N{U+005C}\N{U+003F}\N{U+0023}]$/)) {
+							if (!starts_with_a_windows_drive_letter($pointer->c . $pointer->remaining)) {
 								$url->{'host'} = $base->{'host'};
 								$url->{'path'} = $base->{'path'};
 								$url->shorten_path();
@@ -1109,8 +1121,8 @@ sub basic_url_parse {
 					$state = 'file host state';
 				}
 				else {
-					if (defined $base && $base->{'scheme'} eq 'file') {
-						if ($base->{'path'}->[0] =~ m/^[\N{U+0041}-\N{U+005A}\N{U+0061}-\N{U+007A}]\N{U+003A}$/) {
+					if (defined $base && $base->{'scheme'} eq 'file' && !starts_with_a_windows_drive_letter($pointer->c . $pointer->remaining)) {
+						if ($base->{'path'}->[0] =~ m/^$normalized_windows_drive_letter$/) {
 							push $url->{'path'}->@*, $base->{'path'}->[0];
 						}
 						else {
@@ -1125,7 +1137,7 @@ sub basic_url_parse {
 			when ('file host state') {
 				if ($pointer->is_eof || $pointer->c =~ m/^[\N{U+002F}\N{U+005C}\N{U+003F}\N{U+0023}]$/) {
 					$pointer->decr(1);
-					if(!defined $state_override && $buffer =~ m/^[\N{U+0041}-\N{U+005A}\N{U+0061}-\N{U+007A}][\N{U+003A}\N{U+007C}]$/) {
+					if(!defined $state_override && $buffer =~ m/^$windows_drive_letter$/) {
 						warn 'validation error';
 						$state = 'path state';
 					}
@@ -1208,7 +1220,7 @@ sub basic_url_parse {
 						push $url->{'path'}->@*, '';
 					}
 					elsif (!($buffer eq '.' || WHATWG::Infra::ascii_lowercase($buffer) ~~ '%2e')) {
-						if ($url->{'scheme'} eq 'file' && !$url->{'path'}->@* && $buffer =~ m/^[\N{U+0041}-\N{U+005A}\N{U+0061}-\N{U+007A}][\N{U+003A}\N{U+007C}]$/) {
+						if ($url->{'scheme'} eq 'file' && !$url->{'path'}->@* && $buffer =~ m/^$windows_drive_letter$/) {
 							if (defined $url->{'host'} && $url->{'host'} ne '') {
 								warn 'validation error';
 								$url->{'host'} = '';
