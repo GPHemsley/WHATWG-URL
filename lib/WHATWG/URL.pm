@@ -10,7 +10,7 @@ WHATWG::URL - Primary functionality from the WHATWG URL standard
 
 =cut
 
-our $VERSION = '0.1.0-20171029';
+our $VERSION = '0.1.0-20171216';
 
 use List::Util ();
 use Encode ();
@@ -82,7 +82,9 @@ sub percent_decode {
 
 our $c0_control_percent_encode_set = q/\N{U+0000}-\N{U+001F}\N{U+007F}-\N{U+FFFFFF}/;
 
-our $path_percent_encode_set = $c0_control_percent_encode_set . q/\N{U+0020}\N{U+0022}\N{U+0023}\N{U+003C}\N{U+003E}\N{U+003F}\N{U+0060}\N{U+007B}\N{U+007D}/;
+our $fragment_percent_encode_set = $c0_control_percent_encode_set . q/\N{U+0020}\N{U+0022}\N{U+003C}\N{U+003E}\N{U+0060}/;
+
+our $path_percent_encode_set = $fragment_percent_encode_set . q/\N{U+0023}\N{U+003F}\N{U+007B}\N{U+007D}/;
 
 our $userinfo_percent_encode_set = $path_percent_encode_set . q/\N{U+002F}\N{U+003A}\N{U+003B}\N{U+003D}\N{U+0040}\N{U+005B}\N{U+005C}\N{U+005D}\N{U+005E}\N{U+007C}/;
 
@@ -1333,7 +1335,7 @@ sub basic_url_parse {
 							warn 'validation error';
 						}
 
-						$url->{'fragment'} .= utf8_percent_encode($pointer->c, $c0_control_percent_encode_set);
+						$url->{'fragment'} .= utf8_percent_encode($pointer->c, $fragment_percent_encode_set);
 					}
 				}
 			}
