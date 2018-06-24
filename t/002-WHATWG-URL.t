@@ -316,16 +316,16 @@ subtest 'host_parse' => sub {
 	is_deeply(WHATWG::URL::host_parse('[]', 1), undef);
 	is_deeply(WHATWG::URL::host_parse('[::0]', 0), [ 0, 0, 0, 0, 0, 0, 0, 0 ]);
 	is_deeply(WHATWG::URL::host_parse('[::0]', 1), [ 0, 0, 0, 0, 0, 0, 0, 0 ]);
-	is_deeply(WHATWG::URL::host_parse("\N{U+038B}.test", 0), '%CE%8B.test');
-	is_deeply(WHATWG::URL::host_parse("\N{U+038B}.test", 1), undef);
+	is_deeply(WHATWG::URL::host_parse("\N{U+038B}.test", 1), '%CE%8B.test');
+	is_deeply(WHATWG::URL::host_parse("\N{U+038B}.test", 0), undef);
 
 	foreach my $forbidden ("\N{U+0000}", "\N{U+0009}", "\N{U+000A}", "\N{U+000D}", "\N{U+0020}", "\N{U+0023}", "\N{U+0025}", "\N{U+002F}", "\N{U+003A}", "\N{U+003F}", "\N{U+0040}", "\N{U+005B}", "\N{U+005C}", "\N{U+005D}") {
-		is_deeply(WHATWG::URL::host_parse("$forbidden.test", 1), undef);
+		is_deeply(WHATWG::URL::host_parse("$forbidden.test", 0), undef);
 	}
 
-	is_deeply(WHATWG::URL::host_parse('127.0.0.1', 1), 0x7F000001);
-	is_deeply(WHATWG::URL::host_parse('256.0.0.1', 1), undef);
-	is_deeply(WHATWG::URL::host_parse('0..0x300', 1), '0..0x300');
+	is_deeply(WHATWG::URL::host_parse('127.0.0.1', 0), 0x7F000001);
+	is_deeply(WHATWG::URL::host_parse('256.0.0.1', 0), undef);
+	is_deeply(WHATWG::URL::host_parse('0..0x300', 0), '0..0x300');
 };
 
 subtest 'ipv4_number_parse' => sub {

@@ -10,7 +10,7 @@ WHATWG::URL - Primary functionality from the WHATWG URL standard
 
 =cut
 
-use version 0.9915; our $VERSION = version->declare('v0.18.06.24.18.05.23.002');
+use version 0.9915; our $VERSION = version->declare('v0.18.06.24.18.05.30');
 
 use List::Util ();
 use Encode ();
@@ -151,7 +151,11 @@ sub domain_to_ascii {
 #
 
 sub host_parse {
-	my ($input, $is_special) = @_;
+	my ($input, $is_not_special) = @_;
+
+	unless (defined $is_not_special) {
+		$is_not_special = 0;
+	}
 
 	if ($input =~ m/^\N{U+005B}/) {
 		if ($input !~ m/\N{U+005D}$/) {
@@ -162,7 +166,7 @@ sub host_parse {
 		return ipv6_parse(substr($input, 1, -1));
 	}
 
-	unless ($is_special) {
+	if ($is_not_special) {
 		return opaque_host_parse($input);
 	}
 
@@ -624,6 +628,12 @@ sub is_special {
 	return (exists $special_schemes->{$self->{'scheme'}});
 }
 
+sub is_not_special {
+	my $self = shift;
+
+	return (!exists $special_schemes->{$self->{'scheme'}});
+}
+
 sub includes_credentials {
 	my $self = shift;
 
@@ -982,7 +992,7 @@ sub basic_url_parse {
 						return undef;
 					}
 
-					my $host = host_parse($buffer, $url->is_special);
+					my $host = host_parse($buffer, $url->is_not_special);
 
 					unless (defined $host) {
 						return undef;
@@ -1008,7 +1018,7 @@ sub basic_url_parse {
 						return undef;
 					}
 
-					my $host = host_parse($buffer, $url->is_special);
+					my $host = host_parse($buffer, $url->is_not_special);
 
 					unless (defined $host) {
 						return undef;
@@ -1153,7 +1163,7 @@ sub basic_url_parse {
 						$state = 'path start state';
 					}
 					else {
-						my $host = host_parse($buffer, $url->is_special);
+						my $host = host_parse($buffer, $url->is_not_special);
 
 						unless (defined $host) {
 							return undef;
@@ -1285,7 +1295,7 @@ sub basic_url_parse {
 				}
 			}
 			when ('query state') {
-				if ($encoding ne 'UTF-8' && (!$url->is_special || $url->{'scheme'} ~~ [ 'ws', 'wss' ])) {
+				if ($encoding ne 'UTF-8' && ($url->is_not_special || $url->{'scheme'} ~~ [ 'ws', 'wss' ])) {
 					$encoding = 'UTF-8';
 				}
 
