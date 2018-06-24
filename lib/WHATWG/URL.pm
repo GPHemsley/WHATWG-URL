@@ -10,7 +10,7 @@ WHATWG::URL - Primary functionality from the WHATWG URL standard
 
 =cut
 
-use version 0.9915; our $VERSION = version->declare('v0.18.06.24.18.05.30');
+use version 0.9915; our $VERSION = version->declare('v0.18.06.24.18.06.08');
 
 use List::Util ();
 use Encode ();
@@ -1323,7 +1323,7 @@ sub basic_url_parse {
 						for (my $i = 0, my $j = 0; $i < length($bytes); $i++, $j++) {
 							my $byte = vec($bytes, $i, 8);
 
-							if ($byte < 0x21 || $byte > 0x7E || $byte ~~ [ 0x22, 0x23, 0x3C, 0x3E ]) {
+							if ($byte < 0x21 || $byte > 0x7E || $byte ~~ [ 0x22, 0x23, 0x3C, 0x3E ] || ($byte eq 0x27 && $url->is_special)) {
 								$url->{'query'} .= percent_encode($byte);
 							}
 							else {
