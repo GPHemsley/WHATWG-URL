@@ -28,6 +28,7 @@ WriteMakefile(
         'POSIX' => '0',
         'Net::IDN::UTS46' => '2.500_20170604',
         'WHATWG::Infra' => '0',
+        'version' => '0.9915',
     },
     test => { TESTS => 't/000-*.t t/001-*.t t/002-*.t t/004-*.t' },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },

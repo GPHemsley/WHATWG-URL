@@ -10,7 +10,7 @@ WHATWG::URL - Primary functionality from the WHATWG URL standard
 
 =cut
 
-our $VERSION = '0.1.0-20171216';
+use version 0.9915; our $VERSION = version->declare('v0.18.06.24.18.05.23.001');
 
 use List::Util ();
 use Encode ();
@@ -1285,11 +1285,11 @@ sub basic_url_parse {
 				}
 			}
 			when ('query state') {
-				if ($pointer->is_eof || (!defined $state_override && $pointer->c eq "\N{U+0023}")) {
-					if (!$url->is_special || $url->{'scheme'} ~~ [ 'ws', 'wss' ]) {
-						$encoding = 'UTF-8';
-					}
+				if ($encoding ne 'UTF-8' && (!$url->is_special || $url->{'scheme'} ~~ [ 'ws', 'wss' ])) {
+					$encoding = 'UTF-8';
+				}
 
+				if ($pointer->is_eof || (!defined $state_override && $pointer->c eq "\N{U+0023}")) {
 					$buffer = Encode::encode($encoding, $buffer);  # TODO: encode
 
 					for (my $i = 0, my $j = 0; $i < length($buffer); $i++, $j++) {
