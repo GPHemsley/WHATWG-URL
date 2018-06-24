@@ -20,10 +20,10 @@ use_ok('WHATWG::URL');
 use_ok('WHATWG::URL::URL');
 use_ok('WHATWG::URL::URLSearchParams');
 
-# https://github.com/w3c/web-platform-tests/blob/master/url/setters_tests.json
+# https://github.com/web-platform-tests/wpt/blob/master/url/resources/setters_tests.json
 my $user_agent = LWP::UserAgent->new();
 
-my $response = $user_agent->get('http://w3c-test.org/url/setters_tests.json');
+my $response = $user_agent->get('http://w3c-test.org/url/resources/setters_tests.json');
 
 my $json;
 if ($response->is_success()) {
