@@ -21,18 +21,20 @@ use_ok('WHATWG::URL::URL');
 use_ok('WHATWG::URL::URLSearchParams');
 
 # https://github.com/w3c/web-platform-tests/blob/master/url/urltestdata.json
+my $user_agent = LWP::UserAgent->new();
+
+my $response = $user_agent->get('http://w3c-test.org/url/urltestdata.json');
+
+my $json;
+if ($response->is_success()) {
+	$json = $response->decoded_content;
+}
+else {
+	fail('Could not get test data');
+}
+
 SKIP: {
-	my $user_agent = LWP::UserAgent->new();
-
-	my $response = $user_agent->get('http://w3c-test.org/url/urltestdata.json');
-
-	my $json;
-	if ($response->is_success()) {
-		$json = $response->decoded_content;
-	}
-	else {
-		skip('Could not get test data');
-	}
+	skip('No test data available') unless defined $json;
 
 	my $test_data = decode_json($json);
 
