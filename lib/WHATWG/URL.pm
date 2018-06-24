@@ -10,7 +10,7 @@ WHATWG::URL - Primary functionality from the WHATWG URL standard
 
 =cut
 
-use version 0.9915; our $VERSION = version->declare('v0.18.06.24.18.05.23.001');
+use version 0.9915; our $VERSION = version->declare('v0.18.06.24.18.05.23.002');
 
 use List::Util ();
 use Encode ();
@@ -1289,35 +1289,38 @@ sub basic_url_parse {
 					$encoding = 'UTF-8';
 				}
 
-				if ($pointer->is_eof || (!defined $state_override && $pointer->c eq "\N{U+0023}")) {
-					$buffer = Encode::encode($encoding, $buffer);  # TODO: encode
-
-					for (my $i = 0, my $j = 0; $i < length($buffer); $i++, $j++) {
-						my $byte = vec($buffer, $i, 8);
-
-						if ($byte < 0x21 || $byte > 0x7E || $byte ~~ [ 0x22, 0x23, 0x3C, 0x3E ]) {
-							$url->{'query'} .= percent_encode($byte);
-						}
-						else {
-							$url->{'query'} .= chr($byte);
-						}
-					}
-
-					$buffer = '';
-
-					if ($pointer->c eq "\N{U+0023}") {
-						$url->{'fragment'} = '';
-						$state = 'fragment state';
-					}
+				if (!defined $state_override && $pointer->c eq "\N{U+0023}") {
+					$url->{'fragment'} = '';
+					$state = 'fragment state';
 				}
-				else {
-					# TODO
+				elsif (!$pointer->is_eof) {
+					# TODO: validation error
 
 					if ($pointer->c eq "\N{U+0025}" && $pointer->remaining !~ m/^[\N{U+0030}-\N{U+0039}\N{U+0041}-\N{U+0046}\N{U+0061}-\N{U+0066}]{2}/) {
 						warn 'validation error';
 					}
 
-					$buffer .= $pointer->c;
+					my $bytes = Encode::encode($encoding, $pointer->c);  # TODO: encode
+
+					if ($bytes =~ m/^&#/ && $bytes =~ m/\x3B$/) {
+						$bytes =~ s/^&#/%26%23/;
+
+						$bytes =~ s/\x3B$/%3B/;
+
+						$url->{'query'} .= Encode::decode_utf8($bytes, Encode::FB_PERLQQ);  # TODO: isomorphic decode
+					}
+					else {
+						for (my $i = 0, my $j = 0; $i < length($bytes); $i++, $j++) {
+							my $byte = vec($bytes, $i, 8);
+
+							if ($byte < 0x21 || $byte > 0x7E || $byte ~~ [ 0x22, 0x23, 0x3C, 0x3E ]) {
+								$url->{'query'} .= percent_encode($byte);
+							}
+							else {
+								$url->{'query'} .= chr($byte);
+							}
+						}
+					}
 				}
 			}
 			when ('fragment state') {
