@@ -5,6 +5,7 @@ perl:
   - "5.26"
   - "5.22-shrplib"
   - "5.24-shrplib"
+  - "5.26-shrplib"
 before_install:
   - "git clone https://github.com/GPHemsley/Net-IDN-Encode.git && pushd Net-IDN-Encode && git checkout VerifyDnsLength && cpanm --quiet --installdeps --notest . && perl Build.PL && ./Build && ./Build install && popd"
   - "git clone https://github.com/GPHemsley/WHATWG-Infra.git && pushd WHATWG-Infra && cpanm --quiet --installdeps --notest . && perl Makefile.PL && make && make test && make install && popd"
