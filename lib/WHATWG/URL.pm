@@ -10,7 +10,7 @@ WHATWG::URL - Primary functionality from the WHATWG URL standard
 
 =cut
 
-use version 0.9915; our $VERSION = version->declare('v0.18.06.24.18.06.08');
+use version 0.9915; our $VERSION = version->declare('v0.18.06.24.19.04.15');
 
 use List::Util ();
 use Encode ();
@@ -95,7 +95,7 @@ sub utf8_percent_encode {
 		return $code_point;
 	}
 
-	my $bytes = Encode::encode('UTF-8', $code_point);  # TODO: UTF-8 encode
+	my $bytes = Encode::encode('utf8', $code_point);  # TODO: UTF-8 encode
 
 	my $results = '';
 	for (my $i = 0, my $j = 0; $i < length($bytes); $i++, $j++) {
@@ -170,7 +170,7 @@ sub host_parse {
 		return opaque_host_parse($input);
 	}
 
-	my $domain = Encode::decode('UTF-8', percent_decode(Encode::encode('UTF-8', $input)));  # TODO: UTF-8 decode without BOM; UTF-8 encode
+	my $domain = Encode::decode('UTF-8', percent_decode(Encode::encode('utf8', $input)));  # TODO: UTF-8 decode without BOM; UTF-8 encode
 
 	my $ascii_domain = domain_to_ascii($domain);
 
@@ -1501,7 +1501,7 @@ sub urlencoded_parse {
 sub urlencoded_string_parse {
 	my ($input) = @_;
 
-	return urlencoded_parse(Encode::encode('UTF-8', $input));  # TODO: UTF-8 encode
+	return urlencoded_parse(Encode::encode('utf8', $input));  # TODO: UTF-8 encode
 }
 
 =head1 LICENSE
