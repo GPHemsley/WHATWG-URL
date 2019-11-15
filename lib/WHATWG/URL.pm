@@ -10,7 +10,9 @@ WHATWG::URL - Primary functionality from the WHATWG URL standard
 
 =cut
 
-use version 0.9915; our $VERSION = version->declare('v0.18.06.24.19.04.15');
+# First part is date of this code; second part is date of spec.
+# Third part, if present, is iteration.
+use version 0.9915; our $VERSION = version->declare('v0.19.11.15.19.10.21');
 
 use List::Util ();
 use Encode ();
@@ -615,7 +617,6 @@ sub new {
 our $special_schemes = {
 	'ftp' => 21,
 	'file' => undef,
-	'gopher' => 70,
 	'http' => 80,
 	'https' => 443,
 	'ws' => 80,

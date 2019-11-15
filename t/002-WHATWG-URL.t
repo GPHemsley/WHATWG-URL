@@ -606,7 +606,6 @@ subtest 'is_special' => sub {
 
 	ok(WHATWG::URL->basic_url_parse('ftp://example.org/')->is_special);
 	ok(WHATWG::URL->basic_url_parse('file://example.org/')->is_special);
-	ok(WHATWG::URL->basic_url_parse('gopher://example.org/')->is_special);
 	ok(WHATWG::URL->basic_url_parse('http://example.org/')->is_special);
 	ok(WHATWG::URL->basic_url_parse('https://example.org/')->is_special);
 	ok(WHATWG::URL->basic_url_parse('ws://example.org/')->is_special);
