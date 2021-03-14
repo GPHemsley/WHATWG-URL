@@ -12,7 +12,7 @@ WHATWG::URL - Primary functionality from the WHATWG URL standard
 
 # First part is date of this code; second part is date of spec.
 # Third part, if present, is iteration.
-use version 0.9915; our $VERSION = version->declare('v0.19.11.15.19.10.21');
+use version 0.9915; our $VERSION = version->declare('v0.21.03.13.20.04.27');
 
 use List::Util ();
 use Encode ();
@@ -1335,22 +1335,14 @@ sub basic_url_parse {
 				}
 			}
 			when ('fragment state') {
-				given ($pointer->c) {
-					when ($pointer->is_eof) {
-						# Do nothing.
-					}
-					when ("\N{U+0000}") {
+				if (!$pointer->is_eof) {
+					# TODO
+
+					if ($pointer->c eq "\N{U+0025}" && $pointer->remaining !~ m/^[\N{U+0030}-\N{U+0039}\N{U+0041}-\N{U+0046}\N{U+0061}-\N{U+0066}]{2}/) {
 						warn 'validation error';
 					}
-					default {
-						# TODO
 
-						if ($pointer->c eq "\N{U+0025}" && $pointer->remaining !~ m/^[\N{U+0030}-\N{U+0039}\N{U+0041}-\N{U+0046}\N{U+0061}-\N{U+0066}]{2}/) {
-							warn 'validation error';
-						}
-
-						$url->{'fragment'} .= utf8_percent_encode($pointer->c, $fragment_percent_encode_set);
-					}
+					$url->{'fragment'} .= utf8_percent_encode($pointer->c, $fragment_percent_encode_set);
 				}
 			}
 			default {
