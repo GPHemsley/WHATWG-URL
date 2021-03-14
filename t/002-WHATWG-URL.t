@@ -901,6 +901,7 @@ done_testing();
 # is(WHATWG::URL->basic_url_parse('example'), undef);
 # is(WHATWG::URL->basic_url_parse('https://example.com:demo'), undef);
 # is(WHATWG::URL->basic_url_parse('http://[www.example.com]/'), undef);
+# is(WHATWG::URL->basic_url_parse('https://example.org//')->serialize(), 'https://example.org//');
 
 # #
 # # Debug
