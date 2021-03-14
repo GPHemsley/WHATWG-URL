@@ -2,25 +2,54 @@ language: perl
 perl:
   - "5.22"
   - "5.24"
+  - "5.24-shrplib"
   - "5.26"
+  - "5.26-shrplib"
   - "5.28"
   - "5.30"
-  - "5.24-shrplib"
-  - "5.26-shrplib"
 os: linux
-dist: xenial
+dist: bionic
 matrix:
   include:
     - dist: trusty
       perl: "5.22"
     - dist: trusty
       perl: "5.22-shrplib"
-    - dist: bionic
+    - dist: xenial
+      perl: "5.22"
+    # - dist: xenial
+    #   perl: "5.22-shrplib"
+    - dist: xenial
       perl: "5.26"
-    - dist: bionic
-      perl: "5.28"
-    - dist: bionic
-      perl: "5.30"
+    - dist: xenial
+      perl: "5.26-shrplib"
+    # Focal isn't quite ready for primetime yet.
+    # - dist: bionic
+    #   perl: "5.22"
+    # - dist: bionic
+    #   perl: "5.22-shrplib"
+    # - dist: bionic
+    #   perl: "5.26"
+    # - dist: bionic
+    #   perl: "5.26-shrplib"
+    # - dist: bionic
+    #   perl: "5.30"
+    # - dist: bionic
+    #   perl: "5.30-shrplib"
+    - dist: focal
+      perl: "5.24"
+    # - dist: focal
+    #   perl: "5.26"
+    # - dist: focal
+    #   perl: "5.26-shrplib"
+    # - dist: focal
+    #   perl: "5.30"
+    # - dist: focal
+    #   perl: "5.30-shrplib"
+    # - dist: focal
+    #   perl: "5.34"
+    # - dist: focal
+    #   perl: "5.34-shrplib"
 before_install:
   - "git clone https://github.com/GPHemsley/Net-IDN-Encode.git && pushd Net-IDN-Encode && git checkout VerifyDnsLength && cpanm --quiet --installdeps --notest . && perl Build.PL && ./Build && ./Build install && popd"
   - "git clone https://github.com/GPHemsley/WHATWG-Infra.git && pushd WHATWG-Infra && cpanm --quiet --installdeps --notest . && perl Makefile.PL && make && make test && make install && popd"
