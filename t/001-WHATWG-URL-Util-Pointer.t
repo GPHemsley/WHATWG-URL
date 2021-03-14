@@ -125,9 +125,9 @@ $pointer_0->incr(1);
 $pointer_1->incr(1);
 $pointer_foobar->incr(1);
 
-is($pointer_default->c, undef);
-is($pointer_0->c, undef);
-is($pointer_1->c, undef);
+is($pointer_default->c, '');
+is($pointer_0->c, '');
+is($pointer_1->c, '');
 is($pointer_foobar->c, 'o');
 
 is($pointer_default->remaining, undef);
@@ -157,9 +157,9 @@ $pointer_foobar->set(6);
 
 ok($pointer_foobar->is_eof);
 
-is($pointer_default->c, undef);
-is($pointer_0->c, undef);
-is($pointer_1->c, undef);
+is($pointer_default->c, '');
+is($pointer_0->c, '');
+is($pointer_1->c, '');
 is($pointer_foobar->c, '');
 
 is($pointer_default->remaining, undef);
