@@ -308,7 +308,8 @@ subtest 'domain_to_ascii' => sub {
 subtest 'host_parse' => sub {
 	can_ok('WHATWG::URL', 'host_parse');
 
-	is_deeply(WHATWG::URL::host_parse('', 0), '');
+	is_deeply(WHATWG::URL::host_parse(''), undef);
+	is_deeply(WHATWG::URL::host_parse('', 0), undef);
 	is_deeply(WHATWG::URL::host_parse('', 1), '');
 	is_deeply(WHATWG::URL::host_parse('[', 0), undef);
 	is_deeply(WHATWG::URL::host_parse('[', 1), undef);

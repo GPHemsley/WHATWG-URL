@@ -12,7 +12,7 @@ WHATWG::URL - Primary functionality from the WHATWG URL standard
 
 # First part is date of this code; second part is date of spec.
 # Third part, if present, is iteration.
-use version 0.9915; our $VERSION = version->declare('v0.21.03.13.20.04.27');
+use version 0.9915; our $VERSION = version->declare('v0.21.03.14.20.05.05');
 
 use List::Util ();
 use Encode ();
@@ -170,6 +170,11 @@ sub host_parse {
 
 	if ($is_not_special) {
 		return opaque_host_parse($input);
+	}
+
+	unless ($input ne '') {
+		# warn 'input is empty string';
+		return undef;
 	}
 
 	my $domain = Encode::decode('UTF-8', percent_decode(Encode::encode('utf8', $input)));  # TODO: UTF-8 decode without BOM; UTF-8 encode
